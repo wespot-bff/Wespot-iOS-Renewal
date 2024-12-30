@@ -74,7 +74,7 @@ public final class StudentSearchTableViewCell: UITableViewCell {
     private func setupAttributes() {
         
         backgroundColor = .clear
-        
+        selectionStyle = .none
         contentView.do {
             $0.layer.cornerRadius = 12
             $0.layer.masksToBounds = true
@@ -97,13 +97,13 @@ public final class StudentSearchTableViewCell: UITableViewCell {
     
     public override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: 6, right: 0))
+        contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 0, left: 20, bottom: 20, right: 16))
     }
     
-    public func setupCell(schoolName: String, address: String) {
+    public func configureCell(name: String, info: String) {
         
-        titleLabel.text = schoolName
-        subTitleLabel.text = address
+        titleLabel.text = name
+        subTitleLabel.text = info
     }
     
     public override func setSelected(_ selected: Bool, animated: Bool) {
@@ -112,11 +112,9 @@ public final class StudentSearchTableViewCell: UITableViewCell {
         if selected {
             contentView.layer.borderColor = DesignSystemAsset.Colors.primary400.color.cgColor
             contentView.layer.borderWidth = 1
-            
             checkButton.setImage(DesignSystemAsset.Images.checkSelected.image, for: .normal)
         } else {
             contentView.layer.borderWidth = 0
-            
             checkButton.setImage(DesignSystemAsset.Images.check.image, for: .normal)
         }
     }

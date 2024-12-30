@@ -8,11 +8,13 @@
 import UIKit
 import Util
 import DesignSystem
+import MessageDomain
 
 import ReactorKit
 import Then
 import SnapKit
 import RxCocoa
+import RxDataSources
 
 public final class SearchStudentForMessageWriteViewController: BaseViewController<MessageWriteReactor> {
     
@@ -22,10 +24,11 @@ public final class SearchStudentForMessageWriteViewController: BaseViewControlle
         $0.textColor = DesignSystemAsset.Colors.gray100.color
         $0.text = "오늘 WeSpot님을 설레게 했던\n친구는 누구인가요?"
     }
+    private let gradientView = WSGradientView()
     private let studentSearchTextField = WSTextField(state: .withLeftItem(DesignSystemAsset.Images.magnifyingglass.image),
                                                      placeholder: "이름으로 검색해 보세요")
     private let noResultButton = UIButton().then {
-        let title = "찾는 학교가 없다면?"
+        let title = String.MessageTexts.searchNoResultButtonText
         let attributedTitle = NSAttributedString(
             string: title,
             attributes: [
@@ -41,9 +44,14 @@ public final class SearchStudentForMessageWriteViewController: BaseViewControlle
     private let searchResultTableView = UITableView(frame: .zero).then {
         $0.register(StudentSearchTableViewCell.self,
                     forCellReuseIdentifier: String.MessageTexts.Identifier.studentSearchTableViewCell)
-        $0.backgroundColor = .red
+        $0.backgroundColor = .clear
+        $0.separatorStyle = .none
+        $0.rowHeight = 104
+        $0.prefetchDataSource = nil
     }
     private let nextButton = WSButton(wsButtonType: .default(12))
+    private let loadingIndicatorView: WSLottieIndicatorView = WSLottieIndicatorView()
+
     
     //MARK: - LifeCycle
     
@@ -62,11 +70,15 @@ public final class SearchStudentForMessageWriteViewController: BaseViewControlle
         super.setupUI()
         [titleLabel,
          studentSearchTextField,
-         nextButton ,
-         searchResultTableView].forEach {
+         searchResultTableView,
+         gradientView].forEach {
             self.view.addSubview($0)
         }
+        
+        gradientView.addSubview(nextButton)
+        gradientView.passThroughButton = nextButton
     }
+    
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
@@ -82,12 +94,19 @@ public final class SearchStudentForMessageWriteViewController: BaseViewControlle
         searchResultTableView.snp.makeConstraints {
             $0.top.equalTo(studentSearchTextField.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(nextButton.snp.top).offset(-12)
+            $0.bottom.equalTo(nextButton.snp.top).offset(12)
         }
+        
+        gradientView.snp.makeConstraints {
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+            $0.height.equalTo(150)
+        }
+        
         nextButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview().offset(-12)
             $0.height.equalTo(52)
-            $0.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-12)
         }
     }
     public override func setupAttributes() {
@@ -100,6 +119,7 @@ public final class SearchStudentForMessageWriteViewController: BaseViewControlle
         }
         nextButton.do {
             $0.setupButton(text: "다음")
+            $0.isEnabled = false
         }
     }
         
@@ -120,19 +140,62 @@ extension SearchStudentForMessageWriteViewController {
             .map { self.studentSearchTextField.isEditing }
             .bind(to: studentSearchTextField.borderUpdateBinder)
             .disposed(by: disposeBag)
+        
+        studentSearchTextField.rx.text.orEmpty
+            .distinctUntilChanged()
+            .bind(with: self) {  this, text in
+                reactor.action.onNext(.searchStudent(text))
+            }
+            .disposed(by: disposeBag)
+        
+        searchResultTableView.rx.modelSelected(StudentListResponseEntity.UserEntity.self)
+            .map { MessageWriteReactor.Action.selectUser($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        searchResultTableView.rx
+            .reachedBottom
+            .filter { reactor.currentState.isLoading }
+            .bind(with: self) {  this, _ in
+                reactor.action.onNext(.loadMoreUsers)
+            }
+            .disposed(by:  disposeBag)
     }
     
     private func bindState(reactor: MessageWriteReactor) {
+        
+        reactor.pulse(\.$serachResult)
+            .observe(on: MainScheduler.asyncInstance)
+            .compactMap { $0?.users }
+            .bind(to: searchResultTableView.rx.items(
+                cellIdentifier: String.MessageTexts.Identifier.studentSearchTableViewCell,
+                cellType: StudentSearchTableViewCell.self
+            )) { index, student, cell in
+                cell.configureCell(name: student.name,
+                                   info: student.totalInfo)
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.pulse(\.$isLoading)
+            .delay(.microseconds(200),
+                   scheduler: MainScheduler.instance)
+            .bind(to: loadingIndicatorView.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.selectedUser != nil }
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(to: nextButton.rx.isEnabled)
+            .disposed(by: disposeBag)
         
     }
     
     private func bindUI() {
         self.rx.viewWillAppear
-            .delay(.microseconds(100),
+            .delay(.microseconds(200),
                    scheduler: MainScheduler.instance)
             .bind(with: self) { this, _ in
                 this.studentSearchTextField.becomeFirstResponder()
-
             }
             .disposed(by: disposeBag)
     }

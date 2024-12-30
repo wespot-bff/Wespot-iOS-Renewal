@@ -8,9 +8,9 @@
 import Foundation
 
 public struct StudentListResponseEntity {
-    public let users: [UserEntity]
-    public let hasNext: Bool
-    public let lastCursorId: Int
+    public var users: [UserEntity]
+    public var hasNext: Bool
+    public var lastCursorId: Int
 
     public init(users: [UserEntity],
                 hasNext: Bool,
@@ -31,7 +31,8 @@ extension StudentListResponseEntity {
         public let grade: Int
         public let classNumber: Int
         public let profile: UserProfileEntity
-
+        public var totalInfo: String
+        
         public init(id: Int,
                     name: String,
                     gender: String,
@@ -39,7 +40,8 @@ extension StudentListResponseEntity {
                     schoolName: String,
                     grade: Int,
                     classNumber: Int,
-                    profile: UserProfileEntity) {
+                    profile: UserProfileEntity
+                    ,totalInfo: String = "") {
             self.id = id
             self.name = name
             self.gender = gender
@@ -48,6 +50,7 @@ extension StudentListResponseEntity {
             self.grade = grade
             self.classNumber = classNumber
             self.profile = profile
+            self.totalInfo = totalInfo
         }
     }
 }

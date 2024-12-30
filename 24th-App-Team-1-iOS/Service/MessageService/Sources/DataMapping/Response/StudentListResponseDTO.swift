@@ -41,7 +41,8 @@ extension StudentListResponseDTO {
                 schoolName: schoolName,
                 grade: grade,
                 classNumber: classNumber,
-                profile: profile.toDomain()
+                profile: profile.toDomain(),
+                totalInfo: "\(schoolName) \(grade)학년 \(classNumber)반"
             )
         }
     }
