@@ -9,8 +9,8 @@ import Foundation
 
 public struct SearchStudentRequest {
     
-    public let name: String
-    public let cursorId: Int
+    public var name: String
+    public var cursorId: Int
     
     public init(name: String,
                 cursorId: Int) {
