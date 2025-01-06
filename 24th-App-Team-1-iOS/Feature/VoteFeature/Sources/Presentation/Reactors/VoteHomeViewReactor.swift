@@ -15,7 +15,7 @@ import ReactorKit
 public final class VoteHomeViewReactor: Reactor {
     
     private let globalService: WSGlobalServiceProtocol = WSGlobalStateService.shared
-    private let fetchVoteOptionUseCase: FetchVoteOptionsUseCaseProtocol
+    @Injected private var fetchVoteOptionUseCase: FetchVoteOptionsUseCaseProtocol
     public let initialState: State
     
     public struct State {
@@ -30,11 +30,10 @@ public final class VoteHomeViewReactor: Reactor {
         case setVoteResponseEntity(VoteResponseEntity?)
     }
     
-    public init(fetchVoteOptionUseCase: FetchVoteOptionsUseCaseProtocol) {
+    public init() {
         self.initialState = State(
             voteResponseEntity: nil
         )
-        self.fetchVoteOptionUseCase = fetchVoteOptionUseCase
     }
     
     public func mutate(action: Action) -> Observable<Mutation> {

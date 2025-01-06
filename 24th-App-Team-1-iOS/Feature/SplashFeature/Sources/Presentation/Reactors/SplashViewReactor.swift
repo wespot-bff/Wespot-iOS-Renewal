@@ -11,7 +11,8 @@ import Util
 
 public final class SplashViewReactor: Reactor {
     public var initialState: State
-    private let fetchMajorAppVersionUseCase: FetchMajorAppVersionUseCaseProtocol
+    @Injected public var splashCoordinator: SplashCoordinatorProtocol
+    @Injected private var fetchMajorAppVersionUseCase: FetchMajorAppVersionUseCaseProtocol
     
     public enum Action {
         case willEnterForeground
@@ -27,11 +28,9 @@ public final class SplashViewReactor: Reactor {
     }
     
     public init(
-        fetchMajorAppVersionUseCase: FetchMajorAppVersionUseCaseProtocol,
         accessToken: String?
     ) {
         self.initialState = State(accessToken: accessToken)
-        self.fetchMajorAppVersionUseCase = fetchMajorAppVersionUseCase
     }
     
     public func mutate(action: Action) -> Observable<Mutation> {
@@ -42,9 +41,20 @@ public final class SplashViewReactor: Reactor {
                     observer.onCompleted()
                     return Disposables.create()
                 }
-                Task {
+                Task { @MainActor in
                     do {
                         let updateType = try await self.fetchMajorAppVersionUseCase.execute()
+                        switch updateType {
+                        case .noUpdate:
+                            if self.currentState.accessToken == nil {
+                                self.splashCoordinator.toLogin()
+                            } else {
+                                self.splashCoordinator.toMain()
+                            }
+                        default:
+                            break
+                        }
+                        
                         observer.onNext(.setUpdatetype(updateType))
                     } catch {
                         observer.onError(error)

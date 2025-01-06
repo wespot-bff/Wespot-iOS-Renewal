@@ -18,8 +18,7 @@ public final class VotePageViewController: UIPageViewController  {
     //MARK: - Properties
     public typealias Reactor = VotePageViewReactor
     private lazy var voteViewControllers: [UIViewController] = [voteHomeViewController, voteResultViewController]
-    private lazy var voteHomeViewController: VoteHomeViewController = DependencyContainer.shared.injector.resolve(VoteHomeViewController.self)
-    //TODO: DependecyContaine Result 추가 후 코드 변경
+    private lazy var voteHomeViewController: VoteHomeViewController = VoteHomeDIContainer().makeViewController()
     private lazy var voteResultViewController: VoteResultViewController = DependencyContainer.shared.injector.resolve(VoteResultViewController.self)
     public var disposeBag: DisposeBag = DisposeBag()
     

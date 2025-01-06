@@ -30,12 +30,12 @@ public class SceneDelegate: UIResponder, UISceneDelegate {
     
     var window: UIWindow?
     private let notificationHandler = WSNotificationHandler()
+    @Injected var appCoordinator: AppCoordinator
     
     public func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
         DependencyContainer.shared.injector.assemble([
-            SplashPresentationAssembly(),
-            SignInPresentationAssembly(),
+            CoordinatorAssembly(),
             SignUpNamePresentationAssembly(),
             SignUpClassPresentationAssembly(),
             SignUpGenderPresentationAssembly(),
@@ -45,17 +45,13 @@ public class SceneDelegate: UIResponder, UISceneDelegate {
             SignUpSchoolPresentationAssembly(),
             VotePresentationAssembly(),
             VoteEffectPresentationAssembly(),
-            VoteMainPresentationAssembly(),
-            VoteHomePresentationAssembly(),
             VotePagePresentationAssembly(),
             VoteResultPresentationAssembly(),
             VoteCompletePresentationAssembly(),
             VoteInventoryPresentationAssembly(),
             VoteInventoryDetailPresentationAssembly(),
-            MessageMainPresentationAssembly(),
             MessagePagePresentationAssembly(),
             MessageHomePresentationAssembly(),
-            AllMainPresentationAssembly(),
             AllMainProfilePresentationAssembly(),
             AllMainProfileWebPresentationAssembly(),
             AllMainProfileSettingPresentationAssembly(),
@@ -75,9 +71,13 @@ public class SceneDelegate: UIResponder, UISceneDelegate {
         
         let accessToken = KeychainManager.shared.get(type: .accessToken)
         let refreshToken = KeychainManager.shared.get(type: .refreshToken)
-    
-        let splashViewController = DependencyContainer.shared.injector.resolve(SplashViewController.self, argument: accessToken)
-        window?.rootViewController = UINavigationController(rootViewController: splashViewController)
+        let navigationController = UINavigationController()
+        window?.rootViewController = navigationController
+        appCoordinator = AppCoordinator(navigationController: navigationController)
+        appCoordinator.toSplash(accessToken: accessToken)
+        
+//        let splashViewController = DependencyContainer.shared.injector.resolve(SplashViewController.self, argument: accessToken)
+//        window?.rootViewController = UINavigationController(rootViewController: splashViewController)
         setupViewControllers()
         window?.makeKeyAndVisible()
     }
@@ -100,7 +100,7 @@ extension SceneDelegate {
         
         NotificationCenter.default.addObserver(forName: .showVoteMainViewController, object: nil, queue: .main) { [weak self] _ in
             guard let self else { return }
-            setupMainViewController()
+//            setupMainViewController()
         }
         
         NotificationCenter.default.addObserver(forName: .showProfileSettingViewController, object: nil, queue: .main) { [weak self] _ in
@@ -171,19 +171,5 @@ extension SceneDelegate {
 
 
 extension SceneDelegate {
-    private func setupMainViewController() {
-        let voteMainViewController = DependencyContainer.shared.injector.resolve(VoteMainViewController.self)
-        let voteNavigationContoller = UINavigationController(rootViewController: voteMainViewController)
-        
-        let messageMainViewController = DependencyContainer.shared.injector.resolve(MessageMainViewController.self)
-        let messageNavigationContoller = UINavigationController(rootViewController: messageMainViewController)
-        
-        
-        let allMainViewController = DependencyContainer.shared.injector.resolve(AllMainViewController.self)
-        let allNavigationContoller = UINavigationController(rootViewController: allMainViewController)
-    
-        let tabbarcontroller = WSTabBarViewController()
-        tabbarcontroller.viewControllers = [voteNavigationContoller,messageNavigationContoller, allNavigationContoller]
-        window?.rootViewController = tabbarcontroller
-    }
+   
 }

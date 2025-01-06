@@ -1,8 +1,8 @@
 //
-//  AllMainViewController.swift
+//  ProfileMainViewController.swift
 //  AllFeature
 //
-//  Created by Kim dohyun on 8/11/24.
+//  Created by 김도현 on 1/3/25.
 //
 
 import DesignSystem
@@ -18,7 +18,7 @@ import ReactorKit
 import Kingfisher
 import RxDataSources
 
-public final class AllMainViewController: BaseViewController<AllMainViewReactor> {
+public final class ProfileMainViewController: BaseViewController<ProfileMainViewReactor> {
 
     //MARK: - Properties
     private let profileContainerView: UIView = UIView()
@@ -29,7 +29,7 @@ public final class AllMainViewController: BaseViewController<AllMainViewReactor>
     private let loadingIndicatorView: WSLottieIndicatorView = WSLottieIndicatorView()
     private let voteAddBanner: WSBanner = WSBanner(image: DesignSystemAsset.Images.icProfileVoteFiled.image, titleText: "더 다양한 선택지를 원한다면? ", subText: "위스팟에게 알려주세요")
     private let mainTableView: UITableView = UITableView()
-    private let mainDataSources: RxTableViewSectionedReloadDataSource<AllMainSection> = .init { dataSources, tableView, indexPath, sectionItem in
+    private let mainDataSources: RxTableViewSectionedReloadDataSource<ProfileMainSection> = .init { dataSources, tableView, indexPath, sectionItem in
         
         switch sectionItem {
         case let .appInfoItem(title):
@@ -284,7 +284,7 @@ public final class AllMainViewController: BaseViewController<AllMainViewReactor>
 }
 
 
-extension AllMainViewController: UITableViewDelegate {
+extension ProfileMainViewController: UITableViewDelegate {
     public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         switch self.mainDataSources[section] {
         case .appInfo, .movementInfo:

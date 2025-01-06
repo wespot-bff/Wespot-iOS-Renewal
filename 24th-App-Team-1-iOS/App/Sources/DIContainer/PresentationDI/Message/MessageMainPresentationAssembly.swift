@@ -43,19 +43,3 @@ struct MessagePagePresentationAssembly: Assembly {
         }
     }
 }
-
-struct MessageMainPresentationAssembly: Assembly {
-    func assemble(container: Container) {
-        container.register(MessageMainViewReactor.self) { resolver in
-            return MessageMainViewReactor()
-        }
-        
-        container.register(MessageMainViewController.self) { resovler in
-            let reactor = resovler.resolve(MessageMainViewReactor.self)!
-            
-            return MessageMainViewController(reactor: reactor)
-        }
-    }
-    
-    
-}

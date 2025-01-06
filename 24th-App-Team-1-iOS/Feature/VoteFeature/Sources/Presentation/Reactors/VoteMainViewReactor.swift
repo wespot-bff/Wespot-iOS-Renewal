@@ -14,7 +14,8 @@ import ReactorKit
 public final class VoteMainViewReactor: Reactor {
     public var initialState: State
     private let globalService: WSGlobalServiceProtocol = WSGlobalStateService.shared
-    private let fetchMinorAppVersionUseCase: FetchMinorAppVersionUseCaseProtocol
+    @Injected public var voteMainCoordinator: VoteCoordinatorProtocol
+//    @Injected private var fetchMinorAppVersionUseCase: FetchMinorAppVersionUseCaseProtocol
     
     
     
@@ -38,16 +39,14 @@ public final class VoteMainViewReactor: Reactor {
         case setShowEffectView(Bool)
     }
     
-    public init(
-        fetchMinorAppVersionUseCase: FetchMinorAppVersionUseCaseProtocol
-    ) {
+    public init() {
         self.initialState = State(
             voteTypes: .main,
             updateType: .noUpdate,
             isShowEffectView: false,
             isSelected: false
         )
-        self.fetchMinorAppVersionUseCase = fetchMinorAppVersionUseCase
+        print("votemain reactor init")
     }
     
     public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
@@ -76,8 +75,8 @@ public final class VoteMainViewReactor: Reactor {
                     }
                 Task {
                     do {
-                        let updateType = try await self.fetchMinorAppVersionUseCase.execute()
-                        observer.onNext(.setUpdateType(updateType))
+//                        let updateType = try await self.fetchMinorAppVersionUseCase.execute()
+//                        observer.onNext(.setUpdateType(updateType))
                     } catch {
                         observer.onError(error)
                     }

@@ -12,34 +12,26 @@ import LoginFeature
 
 /// SceneDelegate에 호출되는 화면 전환 메서드의 청사진 입니다.
 public protocol AppCoordinatorProtocol {
-    func toLogin()
-    func toMain()
+    func toSplash(accessToken: String?)
 }
 
 
 final class AppCoordinator: AppCoordinatorProtocol, Coordinator {
-    
+    weak var parent: (any Coordinator)?
     var navigationController: UINavigationController
-    var childCoordinators: [any Coordinator]
+    var childCoordinators: [any Coordinator] = []
     
-    public init(navigationController: UINavigationController, childCoordinators: [any Coordinator]) {
+    public init(navigationController: UINavigationController) {
         self.navigationController = navigationController
-        self.childCoordinators = childCoordinators
     }
     
-    
-    //TODO: login, Main 화면 전환 로직 추가
-    public func toLogin() {
-        let signInReactor = SignInDIContainer().makeReactor()
-        let signInViewController = SignInDIContainer().makeViewController()
-        signInReactor.signInCoordinator = self
-
-        navigationController.pushViewController(signInViewController, animated: true)
-    }
-    
-    public func toMain() {
+    public func toSplash(accessToken: String?) {
+        let splashCoordinator = SplashCoordinator(navigationController: navigationController)
+        childCoordinators.removeAll()
+        splashCoordinator.parent = parent
+        childCoordinators.append(splashCoordinator)
+        splashCoordinator.toSplash(accessToken: accessToken)
         
     }
-    
 }
 

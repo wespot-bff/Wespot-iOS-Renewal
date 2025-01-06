@@ -20,7 +20,7 @@ import KeychainSwift
 public final class SignInViewReactor: Reactor {
     
     @Injected private var signInUseCase: SignInUserUseCaseProtocol
-    @CoordinatorInjected public var signInCoordinator: Coordinator
+    @Injected public var signInCoordinator: Coordinator
     private let globalService: WSGlobalServiceProtocol = WSGlobalStateService.shared
     private var disposeBag = DisposeBag()
     public var initialState: State

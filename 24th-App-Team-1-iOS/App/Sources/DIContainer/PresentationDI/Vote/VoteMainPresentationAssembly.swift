@@ -13,41 +13,6 @@ import CommonDomain
 import Swinject
 
 
-/// VoteMain DIContainer
-struct VoteMainPresentationAssembly: Assembly {
-    func assemble(container: Container) {
-        
-        container.register(VoteMainViewReactor.self) { resolver in
-            let fetchMinorAppVersionUseCase = resolver.resolve(FetchMinorAppVersionUseCaseProtocol.self)!
-            return VoteMainViewReactor(fetchMinorAppVersionUseCase: fetchMinorAppVersionUseCase)
-        }
-        
-        container.register(VoteMainViewController.self) { resolver in
-            let reactor = resolver.resolve(VoteMainViewReactor.self)!
-        
-            return VoteMainViewController(reactor: reactor)
-        }
-    }
-}
-
-
-/// VoteHome DIContainer
-struct VoteHomePresentationAssembly: Assembly {
-    func assemble(container: Container) {
-        container.register(VoteHomeViewReactor.self) { resolver in
-            let fetchVoteOptionsUseCase = resolver.resolve(FetchVoteOptionsUseCaseProtocol.self)!
-            return VoteHomeViewReactor(fetchVoteOptionUseCase: fetchVoteOptionsUseCase)
-        }
-        
-        container.register(VoteHomeViewController.self) { resovler in
-            let reactor = resovler.resolve(VoteHomeViewReactor.self)!
-            
-            return VoteHomeViewController(reactor: reactor)
-        }
-    }
-    
-    
-}
 /// VotePage DIContainer
 struct VotePagePresentationAssembly: Assembly {
     func assemble(container: Container) {

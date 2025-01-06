@@ -14,6 +14,7 @@ public final class MessageMainViewReactor: Reactor {
     
     public var initialState: State
     private let globalService: WSGlobalServiceProtocol
+    @Injected public var messageCoordinator: Coordinator
     
     public init(globalService: WSGlobalServiceProtocol = WSGlobalStateService.shared) {
         self.globalService = globalService

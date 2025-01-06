@@ -1,20 +1,21 @@
 //
-//  AllMainViewReactor.swift
+//  ProfileMainViewReactor.swift
 //  AllFeature
 //
-//  Created by Kim dohyun on 8/11/24.
+//  Created by 김도현 on 1/3/25.
 //
 
 import Foundation
-
+import Util
 import CommonDomain
 import ReactorKit
 
-public final class AllMainViewReactor: Reactor {
-    private let fetchUserProfileUseCase: FetchUserProfileUseCaseProtocol
+public final class ProfileMainViewReactor: Reactor {
+    @Injected private var fetchUserProfileUseCase: FetchUserProfileUseCaseProtocol
+    @Injected public var profileCoordinator: Coordinator
     
     public struct State {
-        @Pulse var mainAllSection: [AllMainSection]
+        @Pulse var mainAllSection: [ProfileMainSection]
         @Pulse var accountProfileEntity: UserProfileEntity?
         @Pulse var isLoading: Bool
     }
@@ -30,7 +31,7 @@ public final class AllMainViewReactor: Reactor {
     
     public let initialState: State
     
-    public init(fetchUserProfileUseCase: FetchUserProfileUseCaseProtocol) {
+    public init() {
         self.initialState = State(mainAllSection: [
             .movementInfo([
                 .movementItem("문의 채널 바로가기"),
@@ -45,7 +46,6 @@ public final class AllMainViewReactor: Reactor {
                 .makerInfoItem("WeSpot Makers")
             ])
         ], isLoading: false)
-        self.fetchUserProfileUseCase = fetchUserProfileUseCase
     }
     
     public func mutate(action: Action) -> Observable<Mutation> {
@@ -63,8 +63,6 @@ public final class AllMainViewReactor: Reactor {
                     )
                 }
         }
-        
-        return .empty()
     }
     
     public func reduce(state: State, mutation: Mutation) -> State {
