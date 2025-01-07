@@ -8,8 +8,8 @@
 import Foundation
 
 public struct SendMessageRequest: Equatable {
-    let content: String
-    let reciverId: Int
-    let senderName: String
-    let isAnonymous: Bool
+    public let content: String
+    public let reciverId: Int
+    public let senderName: String
+    public let isAnonymous: Bool
 }

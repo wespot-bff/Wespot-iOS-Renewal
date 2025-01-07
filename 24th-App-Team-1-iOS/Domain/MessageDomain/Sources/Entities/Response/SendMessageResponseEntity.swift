@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+public struct SendMessageResponseEntity: Equatable {
+    public let id: Int
+    
+    public init(id: Int) {
+        self.id = id
+    }
+}

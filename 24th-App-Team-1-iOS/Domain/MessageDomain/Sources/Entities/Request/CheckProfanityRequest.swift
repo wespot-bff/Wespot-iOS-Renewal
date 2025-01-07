@@ -6,3 +6,7 @@
 //
 
 import Foundation
+
+public struct CheckProfanityRequest {
+    let message: String
+}

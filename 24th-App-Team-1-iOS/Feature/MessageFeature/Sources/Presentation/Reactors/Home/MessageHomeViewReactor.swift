@@ -8,16 +8,19 @@
 import Foundation
 import MessageDomain
 import Extensions
+import Util
 
 import ReactorKit
 
 public final class MessageHomeViewReactor: Reactor {
     
     // MARK: - UseCase
+    
     private let fetchMessagesStatusUseCase: FetchMessagesStatusUseCaseProtocol
     private let fetchReservedMessageUseCase: FetchReservedMessageUseCaseProtocol
     
     // MARK: - Timer Task (Swift Concurrency)
+    
     private var timerTask: Task<Void, Never>?
     
     // MARK: - Reactor Properties
@@ -198,7 +201,7 @@ extension MessageHomeViewReactor {
         case 17..<22:
             return .postableTime   // 17:00 ~ 22:00
         case 22..<24:
-            return .etcTime        // 22:00 ~ 24:00
+            return .postableTime        // 22:00 ~ 24:00
         default:
             return .waitTime
         }

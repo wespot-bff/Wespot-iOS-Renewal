@@ -18,7 +18,7 @@ import ReactorKit
 public final class MessageHomeViewController: BaseViewController<MessageHomeViewReactor> {
     
     //MARK: - Properties
-    
+    private let globalState: WSGlobalServiceProtocol = WSGlobalStateService.shared
     private lazy var messageBannerView = WSBanner(image: DesignSystemAsset.Images.reservation.image , titleText: "예약 중인 쪽지 3개").then {
         $0.isHidden = true
     }
@@ -144,6 +144,20 @@ extension MessageHomeViewController {
             )
         }
         .disposed(by: disposeBag)
+        
+        globalState.event
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(with: self) {  this, type in
+                switch type {
+                case .showToast(let message, let type):
+                    this.showWSToast(image: type, message: message)
+                default:
+                    break
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        
     }
     
     private func bindAction(reacotr: MessageHomeViewReactor) {

@@ -8,8 +8,8 @@
 import Foundation
 
 public struct SendMessageRequestDTO: Encodable {
-    let content: String
-    let reciverId: Int
-    let senderName: String
-    let isAnonymous: Bool
+    public let content: String
+    public let receiverId: Int
+    public let senderName: String
+    public let isAnonymous: Bool
 }

@@ -7,6 +7,8 @@
 
 import MessageDomain
 import Extensions
+import Util
+
 import ReactorKit
 import RxSwift
 
@@ -15,12 +17,15 @@ public final class MessageWriteReactor: Reactor {
     // MARK: - UseCase
     
     private let fetchSearchResultUseCase: FetchStudentSearchResultUseCase
-   
+    private let writeMessageUseCase: WriteMessageUseCase
+
     // MARK: - Properties
     
+    let globalState: WSGlobalServiceProtocol = WSGlobalStateService.shared
     public var initialState: State
     
     public struct State {
+        // 검색
         @Pulse var serachResult: StudentListResponseEntity?
         var cursorId: Int = 0
         @Pulse var noSearchResult: Bool = false
@@ -28,12 +33,22 @@ public final class MessageWriteReactor: Reactor {
         var selectedUser: StudentListResponseEntity.UserEntity?
         @Pulse var isLoading: Bool = false
         var studentList: [StudentListResponseEntity.UserEntity] = []
+        
+        // 작성
+        @Pulse var message: String = ""
+        @Pulse var profanityDetection: Bool = false
+        var isAnonymous: Bool = false
+        @Pulse var completeSendMessage: Bool = false
+
     }
     
     public enum Action {
         case searchStudent(String)
         case selectUser(StudentListResponseEntity.UserEntity)
+        case writeMessage(String)
         case loadMoreUsers
+        case sendMessageTapped
+        case anonymousToggle(Bool)
     }
 
     public enum Mutation {
@@ -43,11 +58,17 @@ public final class MessageWriteReactor: Reactor {
         case setSearchText(String)
         case setNoResult(Bool)
         case setLoading(Bool)
+        case DetectProfanity(Bool)
+        case setMessage(String)
+        case postMessage(SendMessageResponseEntity)
+        case setAnonymous(Bool)
     }
     
     // MARK: - Init
     
-    public init(fetchSearchResultUseCase: FetchStudentSearchResultUseCase) {
+    public init(fetchSearchResultUseCase: FetchStudentSearchResultUseCase,
+                writeMessageUseCase: WriteMessageUseCase) {
+        self.writeMessageUseCase = writeMessageUseCase
         self.fetchSearchResultUseCase = fetchSearchResultUseCase
         self.initialState = State()
     }
@@ -78,6 +99,15 @@ extension MessageWriteReactor {
             }
             return searchStudent(name: currentState.searchText,
                                  isLoadMore: true)
+        case .writeMessage(let content):
+            return writeMessage(message: content)
+        case .sendMessageTapped:
+            return sendMessage(content: currentState.message,
+                               receiverId: currentState.selectedUser?.id ?? 0,
+                               senderName: "",
+                               isAnonymous: currentState.isAnonymous)
+        case .anonymousToggle(let value):
+            return Observable.just(.setAnonymous(value))
         }
     }
     
@@ -112,14 +142,47 @@ extension MessageWriteReactor {
             newState.isLoading = isLoading
         case .setSearchText(let text):
             newState.searchText = text
+        case .setMessage(let text):
+            newState.message = text
+        case .DetectProfanity(let result):
+            newState.profanityDetection = result
+        case .postMessage(let result):
+            if result.id != 0 {
+                newState.completeSendMessage = true
+            }
+        case .setAnonymous(let value):
+            newState.isAnonymous = value
         }
         return newState
     }
 }
 
     // MARK: - Mutation Logic
+
 extension MessageWriteReactor {
-    private func searchStudent(name: String, isLoadMore: Bool) -> Observable<Mutation> {
+    
+    private func sendMessage(content: String, receiverId: Int, senderName: String, isAnonymous: Bool) -> Observable<Mutation> {
+        return writeMessageUseCase.sendMessage(content: content, receiverId: receiverId, senderName: senderName, isAnonymous: isAnonymous)
+            .asObservable()
+            .flatMap { result in
+                return Observable.just(Mutation.postMessage(result))
+            }
+    }
+    
+    private func writeMessage(message: String) -> Observable<Mutation> {
+        // 비속어 검사
+        let detectProfanity = writeMessageUseCase.checkProfanity(message: message)
+            .asObservable()
+            .map { isClean in Mutation.DetectProfanity(isClean) }
+        
+        // 메시지 설정
+        let setMessage = Observable.just(Mutation.setMessage(message))
+        
+        return Observable.merge(detectProfanity, setMessage)
+    }
+    
+    private func searchStudent(name: String,
+                               isLoadMore: Bool) -> Observable<Mutation> {
         
         // 1) 시작 시 로딩 표시
         let startLoading = Observable.just(Mutation.setLoading(false))

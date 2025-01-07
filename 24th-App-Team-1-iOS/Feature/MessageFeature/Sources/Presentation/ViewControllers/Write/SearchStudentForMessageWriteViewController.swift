@@ -160,6 +160,35 @@ extension SearchStudentForMessageWriteViewController {
                 reactor.action.onNext(.loadMoreUsers)
             }
             .disposed(by:  disposeBag)
+        
+        navigationBar.rightBarButton.rx
+            .tap
+            .bind(with: self) {  this, _ in
+                WSAlertBuilder(showViewController: this)
+                    .setAlertType(type: .titleWithMeesage)
+                    .setTitle(title: "쪽지 작성을 중단하시나요?",
+                              titleAlignment: .left)
+                    .setMessage(message: "작성 중인 내용은 저장되지 않아요")
+                    .setConfirm(text: "네 그만할래요")
+                    .setCancel(text: "닫기")
+                    .action(.confirm) { [weak self] in
+                        self?.navigationController?.popToRootViewController(animated: true)
+                        
+                    }
+                    .show()
+            }
+            .disposed(by: disposeBag)
+        
+        nextButton.rx
+            .tap
+            .filter { reactor.currentState.selectedUser != nil}
+            .bind(with: self) {  this, _ in
+                let vc = MessageWriteViewController(reactor: reactor)
+                this.navigationController?.pushViewController(vc,
+                                                              animated: true)
+            }
+            .disposed(by: disposeBag)
+            
     }
     
     private func bindState(reactor: MessageWriteReactor) {

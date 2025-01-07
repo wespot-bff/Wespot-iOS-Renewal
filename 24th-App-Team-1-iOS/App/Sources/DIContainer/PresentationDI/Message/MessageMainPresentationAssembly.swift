@@ -33,7 +33,9 @@ struct MessageWritePresentationAssembly: Assembly {
     func assemble(container: Container) {
         container.register(MessageWriteReactor.self) { resolver in
             let fetchSearchResultUseCase = resolver.resolve(FetchStudentSearchResultUseCase.self)!
-            return MessageWriteReactor(fetchSearchResultUseCase: fetchSearchResultUseCase)
+            let writeMessageUseCase =  resolver.resolve(WriteMessageUseCase.self)!
+            return MessageWriteReactor(fetchSearchResultUseCase: fetchSearchResultUseCase,
+                                       writeMessageUseCase: writeMessageUseCase)
         }
         
         container.register(SearchStudentForMessageWriteViewController.self) { resolver in
