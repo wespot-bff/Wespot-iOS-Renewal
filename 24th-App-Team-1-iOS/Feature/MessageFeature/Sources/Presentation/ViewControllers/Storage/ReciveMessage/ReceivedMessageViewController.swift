@@ -1,8 +1,8 @@
 //
-//  MessageStorageViewController.swift
+//  ReceivedMessageViewController.swift
 //  MessageFeature
 //
-//  Created by eunseou on 7/20/24.
+//  Created by 최지철 on 1/8/25.
 //
 
 import UIKit
@@ -16,7 +16,7 @@ import RxCocoa
 import RxDataSources
 import ReactorKit
 
-public final class MessageStorageViewController: BaseViewController<MessageStorageViewReactor> {
+public final class ReceivedMessageViewController: BaseViewController<MessageStorageViewReactor> {
     
     //MARK: - Properties
     private let receivedMessageButton = UIButton()
