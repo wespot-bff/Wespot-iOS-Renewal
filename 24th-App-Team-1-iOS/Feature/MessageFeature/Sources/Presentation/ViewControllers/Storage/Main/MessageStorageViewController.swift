@@ -103,10 +103,10 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             })
             .disposed(by: disposeBag)
         
-        self.rx.viewDidLoad
-            .bind(onNext: {
-                reactor.action.onNext(.loadMessages(cursorId: 0, type: "RECEIVED"))
-                reactor.action.onNext(.loadMessages(cursorId: 0, type: "SENT"))
+        self.rx.viewWillAppear
+            .bind(onNext: {  _ in
+                reactor.action.onNext(.loadMessages(type: "RECEIVED"))
+                reactor.action.onNext(.loadMessages(type: "SENT"))
             })
             .disposed(by: disposeBag)
         
@@ -120,6 +120,13 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         receivedMessageView.moreButtonTapped
             .bind(with: self, onNext: {  this, message in
                 this.showBottomSheet(with: message)
+            })
+            .disposed(by: disposeBag)
+        
+        receivedMessageView.messageCollectionView.rx
+            .reachedBottom
+            .bind(onNext: {  _ in
+                reactor.action.onNext(.loadMoreMessages(type: "RECEIVED"))
             })
             .disposed(by: disposeBag)
         
