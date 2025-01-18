@@ -33,7 +33,6 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
     //MARK: LifeCycle
     open override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupUI()
         setupAutoLayout()
         setupAttributes()

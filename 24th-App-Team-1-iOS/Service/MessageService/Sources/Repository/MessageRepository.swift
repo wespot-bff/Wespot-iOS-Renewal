@@ -15,6 +15,18 @@ import RxSwift
 import RxCocoa
 
 public final class messageRepository: MessageRepositoryProtocol {
+    
+    public func getMessage(query: GetMessageRequest) -> Single<ReceivedMessageResponseEntity> {
+        let query = GetMessageRequestDTO(cursorId: query.cursorId, type: query.type)
+        let endPoint = MessageEndPoint.getMessage(query)
+        return networkService.request(endPoint: endPoint)
+            .asObservable()
+            .logErrorIfDetected(category: Network.error)
+            .decodeMap(ReceievedMessageResponseDTO.self)
+            .map { $0.toDomain() }
+            .asSingle()
+    }
+    
     public func sendMessage(query: SendMessageRequest) -> RxSwift.Single<SendMessageResponseEntity> {
         let query = SendMessageRequestDTO(content: query.content,
                                           receiverId: query.reciverId,

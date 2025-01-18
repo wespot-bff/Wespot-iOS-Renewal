@@ -57,5 +57,7 @@ extension String.MessageTexts {
 
 extension String.MessageTexts.Identifier {
     static let studentSearchTableViewCell = "StudentSearchTableViewCell"
+    static let messageCollectionViewCell = "MessageCollectionViewCell"
+    static let MessageBottomSheetTabelViewCell = "MessageBottomSheetTabelViewCell"
 
 }

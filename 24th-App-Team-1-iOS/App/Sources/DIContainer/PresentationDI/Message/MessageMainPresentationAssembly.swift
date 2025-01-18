@@ -29,6 +29,36 @@ struct MessageHomePresentationAssembly: Assembly {
     }
 }
 
+struct MessageBottomSheetPresentationAssembly: Assembly {
+    func assemble(container: Container) {
+        container.register(MessageStorageBottomSheetReactor.self) { resolver in
+            let messageStorageUseCase = resolver.resolve(MessageStorageUseCase.self)!
+            return MessageStorageBottomSheetReactor(usecase: messageStorageUseCase)
+        }
+        
+        container.register(MessageStorageBottomSheetViewController.self) { (resolver: Resolver, message: MessageContentModel) in
+            let reactor = resolver.resolve(MessageStorageBottomSheetReactor.self)!
+            return MessageStorageBottomSheetViewController(message: message).then {
+                $0.reactor = reactor
+            }
+        }
+    }
+}
+
+struct MessageStroagePresentationAssembly: Assembly {
+    func assemble(container: Container) {
+        container.register(MessageStorageReactor.self) { resolver in
+            let messageStroageUsecase =  resolver.resolve(MessageStorageUseCase.self)!
+            return MessageStorageReactor(usecase: messageStroageUsecase)
+        }
+        
+        container.register(MessageStorageViewController.self) { resolver in
+            let reactor = resolver.resolve(MessageStorageReactor.self)!
+            return MessageStorageViewController(reactor: reactor)
+        }
+    }
+}
+
 struct MessageWritePresentationAssembly: Assembly {
     func assemble(container: Container) {
         container.register(MessageWriteReactor.self) { resolver in

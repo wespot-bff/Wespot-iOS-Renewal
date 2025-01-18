@@ -1,9 +1,10 @@
 //
-//  ReceivedMessageViewController.swift
+//  SentMessageViewController.swift
 //  MessageFeature
 //
-//  Created by 최지철 on 1/8/25.
+//  Created by 최지철 on 1/12/25.
 //
+
 
 import UIKit
 import Util
@@ -16,7 +17,7 @@ import RxCocoa
 import RxDataSources
 import ReactorKit
 
-public final class ReceivedMessageViewController: BaseViewController<MessageStorageViewReactor> {
+public final class SentMessageViewController: BaseViewController<MessageStorageViewReactor> {
     
     //MARK: - Properties
 
@@ -24,7 +25,8 @@ public final class ReceivedMessageViewController: BaseViewController<MessageStor
     //MARK: - LifeCycle
     public override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .red
+        view.backgroundColor = .blue
+
     }
     
     //MARK: - Functions

@@ -16,4 +16,5 @@ public protocol MessageRepositoryProtocol {
     func fetchStudentSearchResult(query: SearchStudentRequest) -> Single<StudentListResponseEntity?>
     func checkProfanity(message: String) -> Single<Bool>
     func sendMessage(query: SendMessageRequest) -> RxSwift.Single<SendMessageResponseEntity>
+    func getMessage(query: GetMessageRequest) -> Single<ReceivedMessageResponseEntity>
 }

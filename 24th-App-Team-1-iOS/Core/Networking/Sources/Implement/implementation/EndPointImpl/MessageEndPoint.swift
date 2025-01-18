@@ -23,6 +23,14 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     case checkProfanity(Encodable)
     // 쪽지 보내기
     case sendMessage(Encodable)
+    // 받은 쪽지
+    case getMessage(Encodable)
+    // 쪽지 삭제
+    case deleteMessage(Int)
+    // 쪽지 차단
+    case blockMessage(Int)
+    // 쪽지 신고
+    case reportMessage(Encodable)
     
     public var spec: WSNetworkSpec {
         switch self {
@@ -38,6 +46,14 @@ public enum MessageEndPoint: WSNetworkEndPoint {
             return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/check-profanity")
         case .sendMessage:
             return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/messages/send")
+        case .getMessage:
+            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages")
+        case .deleteMessage(let messageID):
+            return WSNetworkSpec(method: .delete, url: "\(WSNetworkConfigure.baseURL)/messages\(messageID)")
+        case .blockMessage(let messageID):
+                return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)/block")
+        case .reportMessage:
+            return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/reports")
         }
     }
     
@@ -54,6 +70,14 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .checkProfanity(let body):
             return .requestBody(body)
         case .sendMessage(let body):
+            return .requestBody(body)
+        case .getMessage(let query):
+            return .requestQuery(query)
+        case .deleteMessage:
+            return .none
+        case .blockMessage:
+            return .none
+        case .reportMessage(let body):
             return .requestBody(body)
         }
     }
