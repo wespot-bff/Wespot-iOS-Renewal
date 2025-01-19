@@ -31,13 +31,13 @@ struct MessageHomePresentationAssembly: Assembly {
 
 struct MessageBottomSheetPresentationAssembly: Assembly {
     func assemble(container: Container) {
-        container.register(MessageStorageBottomSheetReactor.self) { resolver in
+        container.register(MessageStorageReactor.self) { resolver in
             let messageStorageUseCase = resolver.resolve(MessageStorageUseCase.self)!
-            return MessageStorageBottomSheetReactor(usecase: messageStorageUseCase)
+            return MessageStorageReactor(usecase: messageStorageUseCase)
         }
         
         container.register(MessageStorageBottomSheetViewController.self) { (resolver: Resolver, message: MessageContentModel) in
-            let reactor = resolver.resolve(MessageStorageBottomSheetReactor.self)!
+            let reactor = resolver.resolve(MessageStorageReactor.self)!
             return MessageStorageBottomSheetViewController(message: message).then {
                 $0.reactor = reactor
             }
