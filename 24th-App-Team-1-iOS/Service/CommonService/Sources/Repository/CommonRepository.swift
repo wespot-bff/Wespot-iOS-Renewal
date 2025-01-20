@@ -10,6 +10,7 @@ import Networking
 import CommonDomain
 import Util
 import Extensions
+import Storage
 
 import FirebaseRemoteConfig
 import Firebase
@@ -76,10 +77,17 @@ public final class CommonRepository: CommonRepositoryProtocol {
     
     public func fetchVoteOptions() -> Single<VoteResponseEntity?> {
         let endPoint = CommonEndPoint.fetchVoteOptions
+        if let cacheResponse: VoteResponseDTO = WSCacheManager.shared.getResponse(for: WSCacheKey.voteOptions.rawValue) {
+            return .just(cacheResponse.toDomain())
+        }
+        
         return networkService.request(endPoint: endPoint)
             .asObservable()
             .logErrorIfDetected(category: Network.error)
             .decodeMap(VoteResponseDTO.self)
+            .do(onNext: { response in
+                WSCacheManager.shared.save(response: response, for: WSCacheKey.voteOptions.rawValue)
+            })
             .map { $0.toDomain() }
             .asSingle()
     }
