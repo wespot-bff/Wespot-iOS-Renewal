@@ -17,7 +17,7 @@ import RxCocoa
 import RxDataSources
 import ReactorKit
 
-public final class MessageStorageViewController: BaseViewController<MessageStorageReactor> {
+public final class MessageStorageViewController: BaseViewController<MessageStorageReactor>, UIScrollViewDelegate {
     
     //MARK: - Properties
     
@@ -86,6 +86,10 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     
     public  override func bind(reactor: Reactor) {
         super.bind(reactor: reactor)
+        sentMessageView.messageCollectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        receivedMessageView.messageCollectionView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
         bindAction(reactor: reactor)
         bindState(reactor: reactor)
     }
@@ -103,17 +107,18 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             })
             .disposed(by: disposeBag)
         
-        self.rx.viewWillAppear
+        self.rx.viewDidLoad
             .bind(onNext: {  _ in
-                reactor.action.onNext(.loadMessages(type: "RECEIVED"))
-                reactor.action.onNext(.loadMessages(type: "SENT"))
+                reactor.action.onNext(.loadMessages(type: String.MessageTexts.messageRecievedType))
+                reactor.action.onNext(.loadMessages(type: String.MessageTexts.messageSentType))
             })
             .disposed(by: disposeBag)
         
         receivedMessageView
             .didSelectMessage
             .bind(onNext: {  message in
-                reactor.action.onNext(.toastMessageDetail(message))
+                reactor.action.onNext(.readMessage(message,
+                                                   tpye: String.MessageTexts.messageRecievedType))
             })
             .disposed(by: disposeBag)
         
@@ -125,15 +130,25 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         
         receivedMessageView.messageCollectionView.rx
             .reachedBottom
+            .throttle(.seconds(1),
+                      scheduler: MainScheduler.instance)
             .bind(onNext: {  _ in
-                reactor.action.onNext(.loadMoreMessages(type: "RECEIVED"))
+                reactor.action.onNext(.loadMoreMessages(type: String.MessageTexts.messageRecievedType))
+            })
+            .disposed(by: disposeBag)
+        
+        sentMessageView.messageCollectionView.rx
+            .reachedBottom
+            .throttle(.seconds(1),
+                      scheduler: MainScheduler.instance)
+            .bind(onNext: {  _ in
+                reactor.action.onNext(.loadMoreMessages(type: String.MessageTexts.messageSentType))
             })
             .disposed(by: disposeBag)
         
         sentMessageView.deleteButtonTapped
             .bind(onNext: {  message in
-                // 여기서 ViewController -> Reactor Action 전달
-                // 혹은 바로 액션 시트/alert을 띄우는 등 원하는 로직
+                
             })
             .disposed(by: disposeBag)
     }
@@ -160,7 +175,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         reactor.pulse(\.$recivedMessageList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
-                this.receivedMessageView.bind(receivedMessages: messages)
+                this.receivedMessageView.loadMessages(newMessages: messages)
             }
             .disposed(by: disposeBag)
         
@@ -195,7 +210,13 @@ extension MessageStorageViewController {
     }
     
     private func showBottomSheet(with message: MessageContentModel) {
-        let bottomSheetVC = DependencyContainer.shared.injector.resolve(MessageStorageBottomSheetViewController.self, argument: message)
+        guard let reactor = self.reactor else { return }
+        
+        let bottomSheetVC = DependencyContainer.shared.injector.resolve(
+            MessageStorageBottomSheetViewController.self,
+            arguments: message, reactor
+        )
+        
         bottomSheetVC.modalPresentationStyle = .pageSheet
         if let sheet = bottomSheetVC.sheetPresentationController {
             if #available(iOS 16.0, *) {
@@ -209,6 +230,7 @@ extension MessageStorageViewController {
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
         self.present(bottomSheetVC, animated: true)
-    }}
+    }
+}
 
 

@@ -38,6 +38,10 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
         setupAttributes()
     }
     
+    open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
+    
     //MARK: Configure
     
     /// 서브 뷰 추가를 위한 메서드
@@ -64,16 +68,10 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
         navigationBar.rx.leftBarButtonItem
             .bind(with: self) { owner, type in
                 switch type {
-                case .leftIcon:
-                    owner.navigationController?.popViewController(animated: true)
-                case .leftWithRightItem:
-                    owner.navigationController?.popViewController(animated: true)
-                case .leftWithCenterItem:
-                    owner.navigationController?.popViewController(animated: true)
-                case .all:
+                case .leftIcon, .leftWithRightItem, .leftWithCenterItem, .all:
                     owner.navigationController?.popViewController(animated: true)
                 default:
-                    break
+                    owner.dismiss(animated: false)
                 }
             }
             .disposed(by: disposeBag)

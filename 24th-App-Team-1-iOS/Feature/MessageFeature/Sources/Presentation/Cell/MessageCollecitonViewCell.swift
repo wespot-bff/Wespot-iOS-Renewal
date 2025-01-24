@@ -82,7 +82,8 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     func configure(info: String,
                    date: String,
                    type: MessageButtonTabEnum,
-                   read: Bool = false) {
+                   read: Bool = false,
+                   isReport: Bool = false) {
         // 메시지 읽음 여부에 따른 이미지 설정
         messageImageView.image = read ? readImage : UnreadImage
 

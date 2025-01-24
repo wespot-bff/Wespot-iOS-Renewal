@@ -17,7 +17,7 @@ import RxCocoa
 import RxDataSources
 import ReactorKit
 
-public final class MessageStorageBottomSheetViewController: BaseViewController<MessageStorageBottomSheetReactor> {
+public final class MessageStorageBottomSheetViewController: BaseViewController<MessageStorageReactor> {
     
     //MARK: - Properties
     
@@ -102,15 +102,73 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
                 guard let message = this.message else {
                     return
                 }
-                reactor.action.onNext(.buttonTapped(message, item))
+                this.showAlert(reacotr: reactor,
+                               message: message,
+                               type: item)
+                
             }
             .disposed(by: disposeBag)
     }
     
     private func bindState(reactor: Reactor) {
-        
+        reactor.pulse(\.$disMissBottomSheet)
+            .bind(with: self, onNext: {  this, state in
+                if state {
+                    this.dismiss(animated: true)
+                }
+            })
+            .disposed(by: disposeBag)
     }
 }
+
+extension MessageStorageBottomSheetViewController {
+    private func showAlert(reacotr: MessageStorageReactor,
+                           message: MessageContentModel,
+                           type: MessageBottomSheetButtonList) {
+        var title: String = ""
+        var description: String = ""
+        var buttonText: String = ""
+        let cloeseButtonText: String = "닫기"
+        switch type {
+        case .block:
+            title = String.MessageTexts.blockMessageAlertTitle
+            description = String.MessageTexts.blockMessageAlertDes
+            buttonText = String.MessageTexts.blockMessageBtnTitle
+        case .delete:
+            title = String.MessageTexts.deleteMessageAlertTitle
+            description = String.MessageTexts.deleteMessageAlertDes
+            buttonText = String.MessageTexts.deleteMessageBtnTitle
+        case .report:
+            title = String.MessageTexts.reportMessageAlertTitle
+            description = String.MessageTexts.reportMessageAlertDes
+            buttonText = String.MessageTexts.reportMessageBtnTitle
+        }
+        
+        WSAlertBuilder(showViewController: self)
+            .setAlertType(type: .titleWithMeesage)
+            .setTitle(title: title,
+                      titleAlignment: .left)
+            .setMessage(message: description)
+            .setConfirm(text: buttonText)
+            .setCancel(text: cloeseButtonText)
+            .action(.confirm) {
+                reacotr.action.onNext(.buttonTapped(message, type))
+                if type == .report {
+                     let reactor = DependencyContainer.shared.injector.resolve(MessageStorageReactor.self)
+                    let reportVC = DependencyContainer.shared.injector.resolve(
+                            MesssageReportViewController.self,
+                            arguments: message, reactor
+                          )
+                    
+                    // 3. 화면 전환
+                    reportVC.modalPresentationStyle = .fullScreen
+                    self.present(reportVC, animated: false)
+                }
+            }
+            .show()
+    }
+}
+
 extension MessageStorageBottomSheetViewController: UITableViewDelegate {
     
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

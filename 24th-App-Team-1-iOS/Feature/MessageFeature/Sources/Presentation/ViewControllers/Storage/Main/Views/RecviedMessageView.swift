@@ -11,15 +11,18 @@ import MessageDomain
 import SnapKit
 import RxSwift
 import RxCocoa
+import RxDataSources
 
 final class RecviedMessageView: UIView {
     
     let didSelectMessage = PublishRelay<MessageContentModel>()
     let moreButtonTapped = PublishRelay<MessageContentModel>()
-    
+    private let messagesRelay = BehaviorRelay<[MessageContentModel]>(value: [])
+    private var messageIndexDict = [Int: Int]()
+    private let sectionsRelay = BehaviorRelay<[MessageSection]>(value: [MessageSection(header: "Messages", items: [])])
+
     let messageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout()).then {
-        $0.register(MessageCollectionViewCell.self,
-                    forCellWithReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell)
+        $0.register(MessageCollectionViewCell.self, forCellWithReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell)
         $0.backgroundColor = .clear
         $0.showsVerticalScrollIndicator = false
     }
@@ -35,20 +38,29 @@ final class RecviedMessageView: UIView {
         }
     }
     
-    func bind(receivedMessages: [MessageContentModel]) {
-        Observable.just(receivedMessages)
-            .bind(to: messageCollectionView.rx.items(
-                cellIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell,
-                cellType: MessageCollectionViewCell.self
-            )) { idx, item, cell in
-                cell.configure(info: "From. " +  item.studentInfo + item.senderName,
+    func loadMessages(newMessages: [MessageContentModel]) {
+        // 전체 새로운 목록으로 대체 (애니메이션 효과와 함께 업데이트됨)
+        let newSection = MessageSection(header: "Messages", items: newMessages)
+        sectionsRelay.accept([newSection])
+    }
+    
+    private func bind() {
+        let dataSource = RxCollectionViewSectionedAnimatedDataSource<MessageSection>(
+            configureCell: { dataSource, collectionView, indexPath, item in
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell, for: indexPath) as! MessageCollectionViewCell
+                cell.configure(info: "From. " + item.studentInfo + item.senderName,
                                date: item.date,
                                type: .received,
                                read: item.isRead)
                 cell.onMoreButtonTap = { [weak self] in
                     self?.moreButtonTapped.accept(item)
-                  }
+                }
+                return cell
             }
+        )
+        
+        sectionsRelay
+            .bind(to: messageCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
         messageCollectionView.rx.modelSelected(MessageContentModel.self)
@@ -60,9 +72,8 @@ final class RecviedMessageView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        messageCollectionView.delegate = nil
-        messageCollectionView.dataSource = nil
         layout()
+        bind()
     }
     
     required init?(coder: NSCoder) {

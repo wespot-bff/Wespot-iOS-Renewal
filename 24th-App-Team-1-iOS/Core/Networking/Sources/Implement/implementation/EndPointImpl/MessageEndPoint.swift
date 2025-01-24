@@ -31,6 +31,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     case blockMessage(Int)
     // 쪽지 신고
     case reportMessage(Encodable)
+    // 쪽지 읽기
+    case readMessage(Int)
     
     public var spec: WSNetworkSpec {
         switch self {
@@ -49,11 +51,16 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .getMessage:
             return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages")
         case .deleteMessage(let messageID):
-            return WSNetworkSpec(method: .delete, url: "\(WSNetworkConfigure.baseURL)/messages\(messageID)")
+            return WSNetworkSpec(method: .delete, url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)")
         case .blockMessage(let messageID):
                 return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)/block")
         case .reportMessage:
-            return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/reports")
+            return WSNetworkSpec(method: .post,
+                                 url: "\(WSNetworkConfigure.baseURL)/reports")
+        case .readMessage(let messageID):
+            return WSNetworkSpec(method: .put,
+                                 url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)/read")
+
         }
     }
     
@@ -79,6 +86,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
             return .none
         case .reportMessage(let body):
             return .requestBody(body)
+        case .readMessage(_):
+            return .none
         }
     }
     
