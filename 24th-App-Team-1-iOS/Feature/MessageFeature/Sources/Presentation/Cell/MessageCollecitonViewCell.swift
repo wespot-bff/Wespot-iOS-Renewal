@@ -107,9 +107,10 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             moreButton.isHidden = true
             xMarkButton.isHidden = false
             xMarkButton.rx.tap
-                .bind { [weak self] in
-                    self?.onDeleteButtonTap?()
-                }
+           .bind(with: self) { owner in
+               owner.onDeleteButtonTap?()
+           }
+           .disposed(by: disposeBag)
                 .disposed(by: disposeBag)
         }
     }
