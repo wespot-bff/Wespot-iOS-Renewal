@@ -22,4 +22,5 @@ public extension Notification.Name {
     static let showProfileImageViewController = Notification.Name("showProfileImageViewController")
     static let showMessageWriteViewController = Notification.Name("showMessageWriteViewController")
     static let showMessageReportViewController = Notification.Name("showMessageReportViewController")
+    static let showProfileSettingViewController = Notification.Name("showProfileSettingViewController")
 }
