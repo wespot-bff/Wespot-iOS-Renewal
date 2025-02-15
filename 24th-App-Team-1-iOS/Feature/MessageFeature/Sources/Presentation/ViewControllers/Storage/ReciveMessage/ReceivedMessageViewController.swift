@@ -16,7 +16,7 @@ import RxCocoa
 import RxDataSources
 import ReactorKit
 
-public final class ReceivedMessageViewController: BaseViewController<MessageStorageViewReactor> {
+public final class ReceivedMessageViewController: BaseViewController<MessageStorageReactor> {
     
     //MARK: - Properties
 
