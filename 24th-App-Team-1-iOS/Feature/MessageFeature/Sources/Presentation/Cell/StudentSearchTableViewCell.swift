@@ -9,6 +9,7 @@ import UIKit
 import DesignSystem
 
 import SnapKit
+import Kingfisher
 
 public final class StudentSearchTableViewCell: UITableViewCell {
         
@@ -52,7 +53,7 @@ public final class StudentSearchTableViewCell: UITableViewCell {
         studentImageView.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.left.equalTo(studentCellView).offset(24)
-            $0.size.equalTo(56)
+            $0.size.equalTo(46)
         }
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(studentImageView.snp.top)
@@ -100,8 +101,8 @@ public final class StudentSearchTableViewCell: UITableViewCell {
         contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 0, left: 20, bottom: 20, right: 16))
     }
     
-    public func configureCell(name: String, info: String) {
-        
+    public func configureCell(name: String, info: String, image: String) {
+        studentImageView.kf.setImage(with: URL(string: image))
         titleLabel.text = name
         subTitleLabel.text = info
     }
