@@ -14,6 +14,7 @@ import Storage
 import ReactorKit
 import Then
 import SnapKit
+import Kingfisher
 import RxCocoa
 import RxDataSources
 
@@ -25,8 +26,16 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
         $0.textColor = DesignSystemAsset.Colors.gray100.color
         $0.textAlignment = .left
     }
-    private let reciverTextField = WSTextField(state: .default).then {
-        $0.isUserInteractionEnabled = false
+    
+    private let reciverView = UIView()
+    private let reciverImageView = UIImageView().then {
+        $0.layer.cornerRadius = 15
+        $0.contentMode = .scaleAspectFit
+        $0.clipsToBounds = true
+    }
+    private let reciverName = WSLabel(wsFont: .Body04)
+    private let changerReciverButton = UIButton().then {
+        $0.setImage(DesignSystemAsset.Images.icProfileEditSelected.image, for: .normal)
     }
     private let reciverStackView = UIStackView().then {
         $0.axis = .vertical
@@ -62,9 +71,17 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
         $0.textColor = DesignSystemAsset.Colors.gray100.color
         $0.textAlignment = .left
     }
-    private let posterTextField = WSTextField(state: .default).then {
-        $0.isUserInteractionEnabled = false
+    private let posterView = UIView()
+    private let changePostNameButton = UIButton().then {
+        $0.setImage(DesignSystemAsset.Images.icProfileEditSelected.image, for: .normal)
     }
+    private let posterImageView = UIImageView().then {
+        $0.layer.cornerRadius = 15
+        $0.contentMode = .scaleAspectFit
+        $0.clipsToBounds = true
+
+    }
+    private let posterName = WSLabel(wsFont: .Body04)
     private let posterStackView = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 12
@@ -76,7 +93,7 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
         $0.textColor = DesignSystemAsset.Colors.gray400.color
     }
     private let anonymousToggle = UISwitch().then {
-        $0.isOn = true
+        $0.isOn = false
         $0.snp.makeConstraints {
             $0.width.equalTo(52)
             $0.height.equalTo(30)
@@ -104,18 +121,22 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
     public override func setupUI() {
         super.setupUI()
         [reciverLabel,
-         reciverTextField].forEach {
+         reciverView].forEach {
             self.reciverStackView.addArrangedSubview($0)
         }
+        
+        reciverView.addSubviews(reciverImageView, reciverName, changerReciverButton)
+        
         [contentLabel,
          contentTextField,
          contetnTextCountLabel].forEach {
             self.contentStackView.addArrangedSubview($0)
         }
         [posterLabel,
-         posterTextField].forEach {
+         posterView].forEach {
             self.posterStackView.addArrangedSubview($0)
         }
+        posterView.addSubviews(posterName, posterImageView, changePostNameButton)
         [anonymousSendLabel,
          anonymousDesLabel].forEach {
             self.anonymousLabelStackView.addArrangedSubview($0)
@@ -128,6 +149,8 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
          postButton].forEach {
             self.view.addSubview($0)
         }
+        posterView.addSubviews(posterName, posterImageView, changePostNameButton)
+        
         contentStackView.setCustomSpacing(12, after: contentLabel)
         contentStackView.setCustomSpacing(4, after: contentTextField)
     }
@@ -160,6 +183,47 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
             $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
             $0.height.equalTo(MessageConstants.messageSendButtonHeight)
         }
+        
+        reciverImageView.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(18)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(30)
+        }
+        
+        reciverName.snp.makeConstraints {
+            $0.leading.equalTo(reciverImageView.snp.trailing).offset(5)
+            $0.centerY.equalToSuperview()
+        }
+        
+        changerReciverButton.snp.makeConstraints {
+            $0.size.equalTo(24)
+            $0.trailing.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
+        
+        posterView.snp.makeConstraints {
+            $0.height.equalTo(60)
+        }
+        reciverView.snp.makeConstraints {
+            $0.height.equalTo(60)
+        }
+        
+        posterImageView.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(18)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(30)
+        }
+        
+        posterName.snp.makeConstraints {
+            $0.leading.equalTo(posterImageView.snp.trailing).offset(5)
+            $0.centerY.equalToSuperview()
+        }
+        
+        changePostNameButton.snp.makeConstraints {
+            $0.size.equalTo(24)
+            $0.trailing.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
     }
     
     public override func setupAttributes() {
@@ -174,7 +238,8 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
             $0.isEnabled = true
             $0.setupButton(text: "쪽지 보내기")
         }
-        posterTextField.placeholderText = UserDefaultsManager.shared.userName ?? "WeSpot님"
+        posterName.text = UserDefaultsManager.shared.userName ?? "WeSpot님"
+        posterImageView.kf.setImage(with: URL(string: UserDefaultsManager.shared.userProfileImage ?? ""), placeholder: DesignSystemAsset.Images.icDefaultProfile.image)
     }
         
     public override func bind(reactor: MessageWriteReactor) {
@@ -240,7 +305,8 @@ extension MessageInfoInputViewController {
             .map {$0.selectedUser}
             .compactMap {$0}
             .bind(with: self) {  this, reciver in
-                this.reciverTextField.placeholderText = reciver.name
+                this.reciverName.text = reciver.name + "|" + reciver.schoolName 
+                this.reciverImageView.kf.setImage(with: URL(string: reciver.profile.iconUrl))
             }
             .disposed(by: disposeBag)
         
