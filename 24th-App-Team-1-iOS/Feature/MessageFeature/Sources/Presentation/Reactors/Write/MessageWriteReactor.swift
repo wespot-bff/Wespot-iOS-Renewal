@@ -31,7 +31,7 @@ public final class MessageWriteReactor: Reactor {
         @Pulse var noSearchResult: Bool = false
         var searchText: String = ""
         var selectedUser: StudentListResponseEntity.UserEntity?
-        @Pulse var isLoading: Bool = false
+        @Pulse var isLoading: Bool = true
         var studentList: [StudentListResponseEntity.UserEntity] = []
         
         // 작성

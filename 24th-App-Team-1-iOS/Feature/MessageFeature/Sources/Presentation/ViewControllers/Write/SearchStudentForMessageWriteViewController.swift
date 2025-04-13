@@ -122,9 +122,7 @@ public final class SearchStudentForMessageWriteViewController: BaseViewControlle
     public override func setupAttributes() {
         super.setupAttributes()
         navigationBar.do {
-            $0.setNavigationBarUI(property: .leftWithRightItem(DesignSystemAsset.Images.arrow.image,
-                                                               "닫기",
-                                                               UIImage()))
+            $0.setNavigationBarUI(property: .rightItem("닫기"))
             $0.setNavigationBarAutoLayout(property: .leftWithRightItem)
         }
         nextButton.do {
@@ -143,6 +141,7 @@ public final class SearchStudentForMessageWriteViewController: BaseViewControlle
             ]
             let attributedTitle = NSAttributedString(string: title, attributes: attributes)
             $0.setAttributedTitle(attributedTitle, for: .normal)
+            $0.isHidden = true
         }
     }
         
@@ -165,8 +164,10 @@ extension SearchStudentForMessageWriteViewController {
             .disposed(by: disposeBag)
         
         studentSearchTextField.rx.text.orEmpty
+            .filter { !$0.isEmpty }
             .distinctUntilChanged()
             .bind(with: self) {  this, text in
+                this.noresultFriendButton.isHidden = false
                 reactor.action.onNext(.searchStudent(text))
             }
             .disposed(by: disposeBag)
@@ -229,7 +230,8 @@ extension SearchStudentForMessageWriteViewController {
                 cellType: StudentSearchTableViewCell.self
             )) { index, student, cell in
                 cell.configureCell(name: student.name,
-                                   info: student.totalInfo)
+                                   info: student.totalInfo,
+                                   image: student.profile.iconUrl)
             }
             .disposed(by: disposeBag)
         

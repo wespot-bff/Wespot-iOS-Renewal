@@ -22,7 +22,7 @@ public final class MessageWriteViewController: BaseViewController<MessageWriteRe
     
     private let titleLabel = WSLabel(wsFont: .Header01).then {
         $0.textColor = DesignSystemAsset.Colors.gray100.color
-        $0.text = "쪽지를 작성해 주세요\n익명으로 전달해 드릴게요"
+        $0.text = String.MessageTexts.messageWriteTitle
     }
     private let contentTextField = WSTextView(state: .default,
                                               placeholder: "나랑 등교 같이할래?")

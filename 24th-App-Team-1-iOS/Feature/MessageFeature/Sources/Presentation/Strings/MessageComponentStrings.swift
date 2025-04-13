@@ -44,6 +44,7 @@ extension String.MessageTexts {
     // MARK: 쪽지 작성(학생 검색) 관련 텍스트
     
     static let searchNoResultButtonText: String = "찾는 친구가 없다면?"
+    static let messageWriteTitle: String = "쪽지를 작성해 주세요\n에버가 전달해 드릴게요"
     
 
     // MARK: 쪽지함 관련 텍스트
@@ -56,7 +57,7 @@ extension String.MessageTexts {
     static let blockMessage: String = "차단된 쪽지입니다"
 
     
-    // MARK: 바텀시트(삭제, 차단, 신고) 관련 텍스트
+    // MARK: 바텀시트(삭제, 차단, 신고, 익명 프로필) 관련 텍스트
     
     static let blockMessageAlertTitle: String = "정말 차단하시나요?"
     static let blockMessageAlertDes: String = "해당 친구와의 쪽지 수신 및 발신이 차단돼요\n* 차단 해제 : 전체>설정>차단 목록>차단 해제"
@@ -67,7 +68,10 @@ extension String.MessageTexts {
     static let deleteMessageAlertTitle: String = "쪽지를 삭제하시나요?"
     static let deleteMessageAlertDes: String = "삭제한 쪽지는 절대 되돌릴 수 없어요"
     static let deleteMessageBtnTitle: String = "네 삭제할래요"
-
+    
+    static let anonymousProfileTitle: String = "익명 프로필을 선택해 주세요"
+    static let anonymousProfileDes: String = "아래의 여러 프로필을 사용하여 상대방과 대화했어요\n어떤 프로필로 대화할 지 쪽지를 선택해 주세요"
+    static let anonymousProfileMakeButton: String = "새로운 익명 프로필로 보내기"
 
 }
 
