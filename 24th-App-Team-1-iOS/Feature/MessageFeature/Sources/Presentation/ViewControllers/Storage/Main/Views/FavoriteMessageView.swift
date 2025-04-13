@@ -40,10 +40,9 @@ final class SentMessageView: UIView {
                 cellIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell,
                 cellType: MessageCollectionViewCell.self
             )) { idx, item, cell in
-                cell.configure(info: "To. " + item.studentInfo + item.reciverName,
+                cell.configure(info: item.studentInfo,
                                date: item.date,
-                               type: .sent,
-                               read: item.isRead)
+                               type: .sent)
                 cell.onDeleteButtonTap = { [weak self] in
                     self?.deleteButtonTapped.accept(item)
                   }
@@ -65,27 +64,35 @@ final class SentMessageView: UIView {
     }
     
     private static func createLayout() -> UICollectionViewLayout {
+        let groupHeight: CGFloat = 170
+        let spacing: CGFloat = 15
+
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.5),
-            heightDimension: .absolute(200)
+            widthDimension: .fractionalWidth(0.5),  // count 매개변수를 사용할 경우 시스템이 자동으로 (전체너비 - spacing)/2 로 계산합니다.
+            heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-
+        item.contentInsets = .zero
+        
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(200)
+            heightDimension: .absolute(groupHeight)
         )
+        // count 매개변수를 사용하면, 시스템이 각 셀의 너비를 (전체너비 - interItemSpacing)/count 로 계산합니다.
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
-            subitems: [item, item]
+            subitem: item,
+            count: 2
         )
-        group.interItemSpacing = .fixed(15)
-
+        group.interItemSpacing = .fixed(spacing)
+        // 좌우 inset 없이 그룹 전체를 사용
+        group.contentInsets = .zero
+        
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-        section.interGroupSpacing = 16
+        section.interGroupSpacing = spacing
+        section.contentInsets = .zero
         
         return UICollectionViewCompositionalLayout(section: section)
     }
+
 }
