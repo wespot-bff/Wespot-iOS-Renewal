@@ -23,6 +23,7 @@ public final class MesssageReportViewController: BaseViewController<MessageStora
     
     // MARK: - UI
     
+    var onDismiss: (() -> Void)?
     private var message: MessageContentModel?
     private let reportTitleLable = WSLabel(wsFont: .Header01)
     private let calImageView = UIImageView()
@@ -134,6 +135,13 @@ public final class MesssageReportViewController: BaseViewController<MessageStora
 
     }
     
+    public override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if self.isBeingDismissed || self.isMovingFromParent {
+            onDismiss?()
+        }
+    }
+    
     public override func bind(reactor: MessageStorageReactor) {
         super.bind(reactor: reactor)
         
@@ -184,6 +192,12 @@ public final class MesssageReportViewController: BaseViewController<MessageStora
                 
                 self.view.window?.rootViewController?.dismiss(animated: false, completion: nil)
             })
+            .disposed(by: disposeBag)
+        
+        self.navigationBar.leftBarButton.rx.tap
+            .bind { [weak self] in
+                self?.dismiss(animated: false)
+            }
             .disposed(by: disposeBag)
     }
     

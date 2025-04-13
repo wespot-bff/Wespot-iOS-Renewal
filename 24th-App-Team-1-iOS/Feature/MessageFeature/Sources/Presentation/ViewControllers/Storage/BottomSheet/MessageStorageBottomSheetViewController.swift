@@ -154,15 +154,20 @@ extension MessageStorageBottomSheetViewController {
             .action(.confirm) {
                 reacotr.action.onNext(.buttonTapped(message, type))
                 if type == .report {
-                     let reactor = DependencyContainer.shared.injector.resolve(MessageStorageReactor.self)
+                    let reactor = DependencyContainer.shared.injector.resolve(MessageStorageReactor.self)
                     let reportVC = DependencyContainer.shared.injector.resolve(
-                            MesssageReportViewController.self,
-                            arguments: message, reactor
-                          )
+                        MesssageReportViewController.self,
+                        arguments: message, reactor
+                    )
                     
                     // 3. 화면 전환
+                    reportVC.onDismiss = { [weak self] in
+                        self?.dismiss(animated: true)
+                    }
                     reportVC.modalPresentationStyle = .fullScreen
                     self.present(reportVC, animated: false)
+                    
+                
                 }
             }
             .show()
