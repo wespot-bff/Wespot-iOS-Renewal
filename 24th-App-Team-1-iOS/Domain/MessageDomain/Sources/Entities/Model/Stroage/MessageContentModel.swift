@@ -15,6 +15,7 @@ public struct MessageContentModel {
     public var isRead: Bool
     public var isBlocked: Bool
     public var isReported: Bool
+    public var isFavorite: Bool
     public let content: String
     public let senderName: String
     public let reciverName: String
@@ -28,7 +29,8 @@ public struct MessageContentModel {
                 content: String,
                 senderName: String,
                 reciverName: String,
-                messageId: Int) {
+                messageId: Int,
+                isFavorite: Bool) {
         self.studentInfo = studentInfo
         self.date = date
         self.isRead = isRead
@@ -38,6 +40,7 @@ public struct MessageContentModel {
         self.senderName = senderName
         self.reciverName = reciverName
         self.messageId = messageId
+        self.isFavorite = isFavorite
     }
 }
 extension MessageContentModel: IdentifiableType, Equatable {

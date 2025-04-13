@@ -27,7 +27,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     }
     private let profileImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
-        $0.backgroundColor = .white
+        $0.backgroundColor = .clear
         $0.layer.cornerRadius = 25
         $0.clipsToBounds = true
     }
@@ -93,18 +93,22 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     
     func configure(info: String,
                    date: String,
-                   type: MessageButtonTabEnum,
-                   isFavorite: Bool = false,
-                   isRead: Bool = false,
-                   isBlock: Bool = false,
-                   isReport: Bool = false) {
+                   isFavorite: Bool,
+                   isRead: Bool,
+                   isBlock: Bool,
+                   isReport: Bool) {
 
         self.redDot.isHidden = isRead || isBlock || isReport
-        self.studentInfoLabel.text = isBlock ? String.MessageTexts.blockMessage : info
-        self.studentInfoLabel.text = isReport ? String.MessageTexts.reportMessage : info
+        self.moreButton.isHidden = isBlock || isReport
         self.favoriteButton.isHidden = isBlock || isReport
+        if isBlock {
+            studentInfoLabel.text = String.MessageTexts.blockMessage
+        } else if isReport {
+            studentInfoLabel.text = String.MessageTexts.reportMessage
+        } else {
+            studentInfoLabel.text = info
+        }
         self.profileImageView.image = (isBlock || isReport) ? DesignSystemAsset.Images.icCaution.image : readImage
-        studentInfoLabel.text = info
         dateLabel.text = date
         self.favoriteButton.setImage(isFavorite ? DesignSystemAsset.Images.icStarFill.image : DesignSystemAsset.Images.icStar.image, for: .normal)
         moreButton.rx.tap
