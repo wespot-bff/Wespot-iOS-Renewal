@@ -48,7 +48,10 @@ final class FavoriteMessageView: UIView {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell, for: indexPath) as! MessageCollectionViewCell
                 cell.configure(info: item.studentInfo,
                                date: item.date,
-                               type: .favorite)
+                               isFavorite: item.isFavorite,
+                               isRead: item.isRead,
+                               isBlock: item.isBlocked,
+                               isReport:  item.isReported)
                 cell.onMoreButtonTap = { [weak self] in
                     self?.moreButtonTapped.accept(item)
                 }

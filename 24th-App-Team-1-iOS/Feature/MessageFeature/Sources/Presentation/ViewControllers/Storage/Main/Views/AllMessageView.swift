@@ -51,7 +51,10 @@ final class AllMessageView: UIView {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell, for: indexPath) as! MessageCollectionViewCell
                 cell.configure(info: item.studentInfo,
                                date: item.date,
-                               type: .received)
+                               isFavorite: item.isFavorite,
+                               isRead: false,
+                               isBlock: item.isBlocked,
+                               isReport:  item.isReported)
                 cell.onMoreButtonTap = { [weak self] in
                     self?.moreButtonTapped.accept(item)
                 }

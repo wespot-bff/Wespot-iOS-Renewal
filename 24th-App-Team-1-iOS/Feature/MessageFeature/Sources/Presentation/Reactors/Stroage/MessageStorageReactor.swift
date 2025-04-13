@@ -349,7 +349,8 @@ extension MessageStorageReactor {
                 content: message.content,
                 senderName: message.senderName,
                 reciverName: message.receiver.name,
-                messageId: message.id
+                messageId: message.id,
+                isFavorite: currentState.tabState == .favorite ? true : false
             )
         }
     }
