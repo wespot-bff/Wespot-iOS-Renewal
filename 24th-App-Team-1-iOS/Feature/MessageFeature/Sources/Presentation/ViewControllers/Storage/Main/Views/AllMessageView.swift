@@ -13,10 +13,11 @@ import RxSwift
 import RxCocoa
 import RxDataSources
 
-final class RecviedMessageView: UIView {
+final class AllMessageView: UIView {
     
     let didSelectMessage = PublishRelay<MessageContentModel>()
     let moreButtonTapped = PublishRelay<MessageContentModel>()
+    let favoriteButtonTapped = PublishRelay<MessageContentModel>()
     private let messagesRelay = BehaviorRelay<[MessageContentModel]>(value: [])
     private var messageIndexDict = [Int: Int]()
     private let sectionsRelay = BehaviorRelay<[MessageSection]>(value: [MessageSection(header: "Messages", items: [])])
@@ -53,6 +54,10 @@ final class RecviedMessageView: UIView {
                                type: .received)
                 cell.onMoreButtonTap = { [weak self] in
                     self?.moreButtonTapped.accept(item)
+                }
+                
+                cell.onFavoriteButtonTap = { [weak self] in
+                    self?.favoriteButtonTapped.accept(item)
                 }
                 return cell
             }

@@ -12,9 +12,9 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-final class SentMessageView: UIView {
+final class FavoriteMessageView: UIView {
     let didSelectMessage = PublishRelay<MessageContentModel>()
-    let deleteButtonTapped = PublishRelay<MessageContentModel>()
+    let unFavoriteButtonTapped = PublishRelay<MessageContentModel>()
     
     let messageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout()).then {
         $0.register(MessageCollectionViewCell.self,
@@ -34,18 +34,18 @@ final class SentMessageView: UIView {
         }
     }
     
-    func bind(sentMessages: [MessageContentModel]) {
-        Observable.just(sentMessages)
+    func bind(favoriteMessages: [MessageContentModel]) {
+        Observable.just(favoriteMessages)
             .bind(to: messageCollectionView.rx.items(
                 cellIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell,
                 cellType: MessageCollectionViewCell.self
             )) { idx, item, cell in
                 cell.configure(info: item.studentInfo,
                                date: item.date,
-                               type: .sent)
-                cell.onDeleteButtonTap = { [weak self] in
-                    self?.deleteButtonTapped.accept(item)
-                  }
+                               type: .favorite)
+                cell.onFavoriteButtonTap = { [weak self] in
+                    self?.unFavoriteButtonTapped.accept(item)
+                }
             }
             .disposed(by: disposeBag)
     }

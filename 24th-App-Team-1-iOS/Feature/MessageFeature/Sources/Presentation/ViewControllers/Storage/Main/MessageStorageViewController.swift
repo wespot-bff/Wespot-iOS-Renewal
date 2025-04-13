@@ -21,10 +21,22 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     
     //MARK: - Properties
     
-    private let receivedMessageButton = WSButton(wsButtonType: .tab)
-    private let sentMessageButton = WSButton(wsButtonType: .tab)
-    private let receivedMessageView = RecviedMessageView()
-    private let sentMessageView = SentMessageView()
+    private let allMessageButton = UIButton().then {
+        $0.setTitle(String.MessageTexts.messageInventoryAllButton, for: .normal)
+        $0.setImage(DesignSystemAsset.Images.icTabbarAllUnselected.image, for: .normal)
+        $0.imageView?.contentMode = .scaleAspectFit
+        $0.titleLabel?.font = WSFont.Body05.font()
+        $0.layer.cornerRadius = 4
+    }
+    private let favoriteMessageButton = UIButton().then {
+        $0.setTitle(String.MessageTexts.messageInventoryFavoriteButton, for: .normal)
+        $0.setImage(DesignSystemAsset.Images.icStarFill.image, for: .normal)
+        $0.imageView?.contentMode = .scaleAspectFit
+        $0.titleLabel?.font = WSFont.Body05.font()
+        $0.layer.cornerRadius = 4
+    }
+    private let receivedMessageView = AllMessageView()
+    private let favoriteMessageView = FavoriteMessageView()
     
     //MARK: - LifeCycle
     
@@ -36,37 +48,37 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     //MARK: - Functions
     public override func setupUI() {
         super.setupUI()
-        self.view.addSubviews(receivedMessageButton,
-                              sentMessageButton,
-                              sentMessageView,
+        self.view.addSubviews(allMessageButton,
+                              favoriteMessageButton,
+                              favoriteMessageView,
                               receivedMessageView)
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
         
-        receivedMessageButton.snp.makeConstraints {
+        allMessageButton.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(6)
             $0.leading.equalTo(view.safeAreaLayoutGuide).offset(20)
             $0.width.equalTo(76)
             $0.height.equalTo(31)
         }
         
-        sentMessageButton.snp.makeConstraints {
+        favoriteMessageButton.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(6)
-            $0.leading.equalTo(receivedMessageButton.snp.trailing).offset(12)
+            $0.leading.equalTo(allMessageButton.snp.trailing).offset(12)
             $0.width.equalTo(76)
             $0.height.equalTo(31)
         }
         
-        sentMessageView.snp.makeConstraints {
-            $0.top.equalTo(sentMessageButton.snp.bottom).offset(12)
+        favoriteMessageView.snp.makeConstraints {
+            $0.top.equalTo(favoriteMessageButton.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
         
         receivedMessageView.snp.makeConstraints {
-            $0.top.equalTo(sentMessageButton.snp.bottom).offset(12)
+            $0.top.equalTo(favoriteMessageButton.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
         }
@@ -74,19 +86,12 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     
     public override func setupAttributes() {
         super.setupAttributes()
-        
-        receivedMessageButton.do {
-            $0.setupButton(text: "받은 쪽지")
-        }
-        
-        sentMessageButton.do {
-            $0.setupButton(text: "보낸 쪽지")
-        }
+
     }
     
     public  override func bind(reactor: Reactor) {
         super.bind(reactor: reactor)
-        sentMessageView.messageCollectionView.rx.setDelegate(self)
+        favoriteMessageView.messageCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         receivedMessageView.messageCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
@@ -95,13 +100,13 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     }
     
     private func bindAction(reactor: Reactor) {
-        sentMessageButton.rx.tap
+        favoriteMessageButton.rx.tap
             .bind(onNext: {
-                reactor.action.onNext(.sentMessageButtonTapped)
+                reactor.action.onNext(.favoriteMessageButtonTapped)
             })
             .disposed(by: disposeBag)
         
-        receivedMessageButton.rx.tap
+        allMessageButton.rx.tap
             .bind(onNext: {
                 reactor.action.onNext(.receivedMessageButtonTapped)
             })
@@ -117,8 +122,8 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         receivedMessageView
             .didSelectMessage
             .bind(onNext: {  message in
-                reactor.action.onNext(.readMessage(message,
-                                                   tpye: String.MessageTexts.messageRecievedType))
+//                reactor.action.onNext(.readMessage(message,
+//                                                   tpye: String.MessageTexts.messageRecievedType))
             })
             .disposed(by: disposeBag)
         
@@ -137,7 +142,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             })
             .disposed(by: disposeBag)
         
-        sentMessageView.messageCollectionView.rx
+        favoriteMessageView.messageCollectionView.rx
             .reachedBottom
             .throttle(.seconds(1),
                       scheduler: MainScheduler.instance)
@@ -146,7 +151,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             })
             .disposed(by: disposeBag)
         
-        sentMessageView.deleteButtonTapped
+        favoriteMessageView.unFavoriteButtonTapped
             .bind(onNext: {  message in
                 
             })
@@ -163,9 +168,9 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
                 switch tabState {
                 case .received:
                     this.receivedMessageView.isHidden = false
-                    this.sentMessageView.isHidden = true
-                case .sent:
-                    this.sentMessageView.isHidden = false
+                    this.favoriteMessageView.isHidden = true
+                case .favorite:
+                    this.favoriteMessageView.isHidden = false
                     this.receivedMessageView.isHidden = true
                 }
 
@@ -179,10 +184,10 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$sentMessageList)
+        reactor.pulse(\.$favoriteMessageList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
-                this.sentMessageView.bind(sentMessages: messages)
+                this.favoriteMessageView.bind(favoriteMessages: messages)
             }
             .disposed(by: disposeBag)
         
@@ -197,8 +202,8 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
 }
 extension MessageStorageViewController {
     private func updateButtonStyles(for tabState: MessageButtonTabEnum) {
-        receivedMessageButton.updateTabStyle(isActive: tabState == .received)
-        sentMessageButton.updateTabStyle(isActive: tabState == .sent)
+        allMessageButton.updateTabStyle(isActive: tabState == .received)
+        favoriteMessageButton.updateTabStyle(isActive: tabState == .favorite)
     }
     
     private func showToast(message: MessageContentModel) {
