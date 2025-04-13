@@ -8,6 +8,7 @@
 import UIKit
 import MessageDomain
 
+import RxDataSources
 import SnapKit
 import RxSwift
 import RxCocoa
@@ -15,7 +16,8 @@ import RxCocoa
 final class FavoriteMessageView: UIView {
     let didSelectMessage = PublishRelay<MessageContentModel>()
     let unFavoriteButtonTapped = PublishRelay<MessageContentModel>()
-    
+    let moreButtonTapped = PublishRelay<MessageContentModel>()
+    private let sectionsRelay = BehaviorRelay<[MessageSection]>(value: [MessageSection(header: "Messages", items: [])])
     let messageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout()).then {
         $0.register(MessageCollectionViewCell.self,
                     forCellWithReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell)
@@ -34,18 +36,37 @@ final class FavoriteMessageView: UIView {
         }
     }
     
-    func bind(favoriteMessages: [MessageContentModel]) {
-        Observable.just(favoriteMessages)
-            .bind(to: messageCollectionView.rx.items(
-                cellIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell,
-                cellType: MessageCollectionViewCell.self
-            )) { idx, item, cell in
+    func loadMessages(newMessages: [MessageContentModel]) {
+        // 전체 새로운 목록으로 대체 (애니메이션 효과와 함께 업데이트됨)
+        let newSection = MessageSection(header: "Messages", items: newMessages)
+        sectionsRelay.accept([newSection])
+    }
+    
+    private func bind() {
+        let dataSource = RxCollectionViewSectionedAnimatedDataSource<MessageSection>(
+            configureCell: { dataSource, collectionView, indexPath, item in
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell, for: indexPath) as! MessageCollectionViewCell
                 cell.configure(info: item.studentInfo,
                                date: item.date,
                                type: .favorite)
+                cell.onMoreButtonTap = { [weak self] in
+                    self?.moreButtonTapped.accept(item)
+                }
+                
                 cell.onFavoriteButtonTap = { [weak self] in
                     self?.unFavoriteButtonTapped.accept(item)
                 }
+                return cell
+            }
+        )
+        
+        sectionsRelay
+            .bind(to: messageCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        messageCollectionView.rx.modelSelected(MessageContentModel.self)
+            .bind(with: self) { this, message in
+                this.didSelectMessage.accept(message)
             }
             .disposed(by: disposeBag)
     }
@@ -55,7 +76,7 @@ final class FavoriteMessageView: UIView {
         
         messageCollectionView.delegate = nil
         messageCollectionView.dataSource = nil
-        
+        bind()
         layout()
     }
     

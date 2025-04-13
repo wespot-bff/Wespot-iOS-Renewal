@@ -152,16 +152,34 @@ public final class MessageStorageReactor: Reactor {
                 )
             }
         case .setDeleteMessage(let deleteMessage):
-            newState.recivedMessageList = updateDeleteMessage(in: state.recivedMessageList,
-                                                              with: deleteMessage)
+            if currentState.tabState == .received {
+                newState.recivedMessageList = updateDeleteMessage(in: state.recivedMessageList,
+                                                                  with: deleteMessage)
+            }
+            else {
+                newState.favoriteMessageList = updateDeleteMessage(in: state.favoriteMessageList,
+                                                                        with: deleteMessage)
+            }
             newState.disMissBottomSheet = true
         case .setReportMessage(let reportMessage):
-            newState.recivedMessageList = updateDeleteMessage(in: state.recivedMessageList,
-                                                              with: reportMessage)
+            if currentState.tabState == .received {
+                newState.recivedMessageList = updateDeleteMessage(in: state.recivedMessageList,
+                                                                  with: reportMessage)
+            }
+            else {
+                newState.favoriteMessageList = updateDeleteMessage(in: state.favoriteMessageList,
+                                                                        with: reportMessage)
+            }
             newState.disMissBottomSheet = true
         case .setBlockMessage(let blockMessage):
-            newState.recivedMessageList = updateDeleteMessage(in: state.recivedMessageList,
-                                                              with: blockMessage)
+            if currentState.tabState == .received {
+                newState.recivedMessageList = updateDeleteMessage(in: state.recivedMessageList,
+                                                                  with: blockMessage)
+            }
+            else {
+                newState.favoriteMessageList = updateDeleteMessage(in: state.favoriteMessageList,
+                                                                        with: blockMessage)
+            }
             newState.disMissBottomSheet = true
         case .setFavoriteMessage(let message):
             if currentState.tabState == .received {

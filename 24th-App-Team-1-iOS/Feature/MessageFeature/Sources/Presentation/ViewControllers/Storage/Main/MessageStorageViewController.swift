@@ -35,7 +35,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         $0.titleLabel?.font = WSFont.Body05.font()
         $0.layer.cornerRadius = 4
     }
-    private let receivedMessageView = AllMessageView()
+    private let allMessageView = AllMessageView()
     private let favoriteMessageView = FavoriteMessageView()
     
     //MARK: - LifeCycle
@@ -51,7 +51,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         self.view.addSubviews(allMessageButton,
                               favoriteMessageButton,
                               favoriteMessageView,
-                              receivedMessageView)
+                              allMessageView)
     }
     
     public override func setupAutoLayout() {
@@ -77,7 +77,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             $0.bottom.equalToSuperview()
         }
         
-        receivedMessageView.snp.makeConstraints {
+        allMessageView.snp.makeConstraints {
             $0.top.equalTo(favoriteMessageButton.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
@@ -93,7 +93,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         super.bind(reactor: reactor)
         favoriteMessageView.messageCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
-        receivedMessageView.messageCollectionView.rx.setDelegate(self)
+        allMessageView.messageCollectionView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         bindAction(reactor: reactor)
         bindState(reactor: reactor)
@@ -119,7 +119,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             })
             .disposed(by: disposeBag)
         
-        receivedMessageView
+        allMessageView
             .didSelectMessage
             .bind(onNext: {  message in
 //                reactor.action.onNext(.readMessage(message,
@@ -127,13 +127,19 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             })
             .disposed(by: disposeBag)
         
-        receivedMessageView.moreButtonTapped
+        allMessageView.moreButtonTapped
             .bind(with: self, onNext: {  this, message in
                 this.showBottomSheet(with: message)
             })
             .disposed(by: disposeBag)
         
-        receivedMessageView.messageCollectionView.rx
+        favoriteMessageView.moreButtonTapped
+            .bind(with: self, onNext: {  this, message in
+                this.showBottomSheet(with: message)
+            })
+            .disposed(by: disposeBag)
+        
+        allMessageView.messageCollectionView.rx
             .reachedBottom
             .throttle(.seconds(1),
                       scheduler: MainScheduler.instance)
@@ -167,11 +173,11 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
                 this.updateButtonStyles(for: tabState)
                 switch tabState {
                 case .received:
-                    this.receivedMessageView.isHidden = false
+                    this.allMessageView.isHidden = false
                     this.favoriteMessageView.isHidden = true
                 case .favorite:
                     this.favoriteMessageView.isHidden = false
-                    this.receivedMessageView.isHidden = true
+                    this.allMessageView.isHidden = true
                 }
 
             }
@@ -180,14 +186,14 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         reactor.pulse(\.$recivedMessageList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
-                this.receivedMessageView.loadMessages(newMessages: messages)
+                this.allMessageView.loadMessages(newMessages: messages)
             }
             .disposed(by: disposeBag)
         
         reactor.pulse(\.$favoriteMessageList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
-                this.favoriteMessageView.bind(favoriteMessages: messages)
+                this.favoriteMessageView.loadMessages(newMessages: messages)
             }
             .disposed(by: disposeBag)
         
