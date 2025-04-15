@@ -100,7 +100,6 @@ public final class MessageStorageReactor: Reactor {
             
         case .buttonTapped(let message, let type):
             switch type {
-            
             case .block:
                 return setBlockMessage(message)
             case .delete:
