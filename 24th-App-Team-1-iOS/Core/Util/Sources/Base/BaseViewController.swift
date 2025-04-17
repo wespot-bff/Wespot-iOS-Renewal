@@ -10,7 +10,6 @@ import UIKit
 import DesignSystem
 import ReactorKit
 
-
 open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Reactor {
     //MARK: Properties
     public typealias Reactor = R
@@ -36,6 +35,11 @@ open class BaseViewController<R>: UIViewController, ReactorKit.View where R: Rea
         setupUI()
         setupAutoLayout()
         setupAttributes()
+        WSLogger.debug(category: "🏠 ViewDidLoad", message: self.description)
+    }
+    
+    deinit {
+        WSLogger.debug(category: "🧹 Deinit", message: self.description)
     }
     
     //MARK: Configure
