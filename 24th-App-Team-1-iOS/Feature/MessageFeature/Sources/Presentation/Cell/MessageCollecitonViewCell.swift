@@ -14,8 +14,6 @@ import MessageDomain
 
 final class MessageCollectionViewCell: UICollectionViewCell {
     
-    private let readImage: UIImage = DesignSystemAsset.Images.messageRead.image
-    private let UnreadImage: UIImage = DesignSystemAsset.Images.messageUnread.image
     private var disposeBag = DisposeBag()
     var onMoreButtonTap: (() -> Void)?
     var onFavoriteButtonTap: (() -> Void)?
@@ -25,25 +23,52 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         $0.layer.cornerRadius = 4
         
     }
+    private let favoriteImage = UIImageView().then {
+        $0.image = DesignSystemAsset.Images.icStarGoldFill.image
+        $0.contentMode = .scaleAspectFit
+    }
     private let profileImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
         $0.backgroundColor = .clear
-        $0.layer.cornerRadius = 25
+        $0.layer.cornerRadius = 17
         $0.clipsToBounds = true
+        $0.image = DesignSystemAsset.Images.boy.image
+    }
+    private let switchImage = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.image = DesignSystemAsset.Images.icVerticalSwitchArrow.image
+    }
+    private let meLabel = WSLabel(wsFont: .Body09, text: "나").then {
+        $0.textColor = DesignSystemAsset.Colors.gray100.color
+    }
+    private let meView = UIView().then {
+        $0.backgroundColor = DesignSystemAsset.Colors.gray600.color
+        $0.layer.cornerRadius = 8
+    }
+    private let nameLabel = WSLabel(wsFont: .Body09, text: "실명").then {
+        $0.textColor = DesignSystemAsset.Colors.gray100.color
+    }
+    private let nameView = UIView().then {
+        $0.backgroundColor = DesignSystemAsset.Colors.gray600.color
+        $0.layer.cornerRadius = 8
+    }
+    private let myNameLabel = WSLabel(wsFont: .Body06)
+    private let opponentNameLabel = WSLabel(wsFont: .Body06)
+    
+    private let opponentImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.backgroundColor = .clear
+        $0.layer.cornerRadius = 17
+        $0.clipsToBounds = true
+        $0.image = DesignSystemAsset.Images.girl.image
     }
     
     private let moreButton = UIButton().then {
         $0.setImage(DesignSystemAsset.Images.icEllipsis.image, for: .normal)
         $0.backgroundColor = .clear
     }
-    private let favoriteButton = UIButton().then {
-        $0.setImage(DesignSystemAsset.Images.icStar.image, for: .normal)
-        $0.backgroundColor = .clear
-    }
-    private let studentInfoLabel = WSLabel(wsFont: .Body09).then {
-        $0.textColor = DesignSystemAsset.Colors.gray100.color
-    }
-    private let dateLabel = WSLabel(wsFont: .Body11).then {
+
+    private let dateLabel = WSLabel(wsFont: .Body09).then {
         $0.textColor = DesignSystemAsset.Colors.gray300.color
     }
     
@@ -52,20 +77,71 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         self.layer.cornerRadius = 12
         self.contentView.addSubviews(profileImageView,
                                      moreButton,
-                                     studentInfoLabel,
+                                     opponentImageView,
+                                     switchImage,
                                      redDot,
-                                     favoriteButton,
+                                     meView,
+                                     nameView,
+                                     myNameLabel,
+                                     opponentNameLabel,
                                      dateLabel)
         
+        self.meView.addSubview(meLabel)
+        self.nameView.addSubviews(nameLabel, favoriteImage)
+        
         profileImageView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(18)
-            $0.size.equalTo(50)
-            $0.leading.equalToSuperview().offset(14)
+            $0.top.equalToSuperview().offset(22)
+            $0.size.equalTo(34)
+            $0.leading.equalToSuperview().offset(20)
+        }
+        switchImage.snp.makeConstraints {
+            $0.size.equalTo(16)
+            $0.top.equalTo(profileImageView.snp.bottom).offset(11)
+            $0.leading.equalToSuperview().offset(29)
+        }
+        opponentImageView.snp.makeConstraints {
+            $0.bottom.equalToSuperview().inset(20.5)
+            $0.size.equalTo(34)
+            $0.leading.equalToSuperview().offset(20)
         }
         redDot.snp.makeConstraints {
             $0.top.equalToSuperview().offset(14)
-            $0.leading.equalToSuperview().offset(60)
+            $0.leading.equalToSuperview().offset(14)
             $0.size.equalTo(8)
+        }
+        
+        meView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(14)
+            $0.leading.equalTo(profileImageView.snp.trailing).offset(16)
+            $0.height.equalTo(20)
+            $0.width.equalTo(31)
+        }
+        meLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
+        nameView.snp.makeConstraints {
+            $0.top.equalTo(switchImage.snp.bottom).offset(8)
+            $0.leading.equalTo(opponentImageView.snp.trailing).offset(16)
+            $0.height.equalTo(20)
+            $0.width.equalTo(39)
+        }
+        myNameLabel.snp.makeConstraints {
+            $0.top.equalTo(meView.snp.bottom).offset(4)
+            $0.leading.equalTo(profileImageView.snp.trailing).offset(16)
+        }
+        opponentNameLabel.snp.makeConstraints {
+            $0.top.equalTo(nameView.snp.bottom).offset(4)
+            $0.leading.equalTo(opponentImageView.snp.trailing).offset(16)
+        }
+        nameLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
+        favoriteImage.snp.makeConstraints {
+            $0.size.equalTo(10)
+            $0.centerY.equalToSuperview()
+            $0.leading.equalToSuperview().offset(8)
         }
         
         moreButton.snp.makeConstraints {
@@ -74,56 +150,40 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             $0.trailing.equalToSuperview().inset(12)
         }
         
-        studentInfoLabel.snp.makeConstraints {
-            $0.top.equalTo(profileImageView.snp.bottom).offset(2)
-            $0.leading.equalToSuperview().offset(15)
-            $0.trailing.equalToSuperview().inset(14)
-            $0.bottom.equalTo(dateLabel.snp.top).offset(-17)
-        }
         dateLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(14)
-            $0.bottom.equalToSuperview().inset(12)
+            $0.trailing.equalToSuperview().inset(14)
+            $0.bottom.equalToSuperview().inset(16)
         }
-        favoriteButton.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.trailing.equalToSuperview().inset(10)
-            $0.bottom.equalToSuperview().inset(10)
-        }
+
     }
     
-    func configure(info: String,
+    func configure(myNickname: String,
+                   opponentNickname: String,
                    date: String,
                    isFavorite: Bool,
-                   isRead: Bool,
-                   isBlock: Bool,
-                   isReport: Bool) {
+                   isAnonymous: Bool = false,
+                   isRead: Bool) {
 
-        self.redDot.isHidden = isRead || isBlock || isReport
-        self.moreButton.isHidden = isBlock || isReport
-        self.favoriteButton.isHidden = isBlock || isReport
-        if isBlock {
-            studentInfoLabel.text = String.MessageTexts.blockMessage
-        } else if isReport {
-            studentInfoLabel.text = String.MessageTexts.reportMessage
+        self.redDot.isHidden = isRead
+        self.myNameLabel.text = myNickname
+        self.opponentNameLabel.text = opponentNickname
+        if isFavorite {
+            self.favoriteImage.isHidden = false
+            self.nameView.snp.updateConstraints {
+                $0.width.equalTo(51)
+            }
         } else {
-            studentInfoLabel.text = info
+            self.favoriteImage.isHidden = true
+            self.nameView.snp.updateConstraints {
+                $0.width.equalTo(39)
+            }
         }
-        self.profileImageView.image = (isBlock || isReport) ? DesignSystemAsset.Images.icCaution.image : readImage
+        self.nameLabel.text = isAnonymous ? "익명" : "실명"
         dateLabel.text = date
-        self.favoriteButton.setImage(isFavorite ? DesignSystemAsset.Images.icStarFill.image : DesignSystemAsset.Images.icStar.image, for: .normal)
         moreButton.rx.tap
             .bind { [weak self] in
                 guard let self = self else { return }
                 self.onMoreButtonTap?()
-            }
-            .disposed(by: disposeBag)
-        
-        favoriteButton.rx.tap
-            .bind { [weak self] in
-                guard let self = self else { return }
-                self.isFavorite.toggle()
-                self.updateFavoriteButtonImage()
-                self.onFavoriteButtonTap?()
             }
             .disposed(by: disposeBag)
     }
@@ -139,12 +199,5 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func updateFavoriteButtonImage() {
-        let image = isFavorite
-            ? DesignSystemAsset.Images.icStarFill.image // For example, a filled star for favorited state
-            : DesignSystemAsset.Images.icStar.image     // Original star image for non-favorited state
-        favoriteButton.setImage(image, for: .normal)
     }
 }

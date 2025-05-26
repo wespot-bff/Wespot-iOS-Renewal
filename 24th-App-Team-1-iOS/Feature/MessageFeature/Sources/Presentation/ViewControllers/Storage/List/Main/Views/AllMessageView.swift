@@ -12,6 +12,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 import RxDataSources
+import DesignSystem
 
 final class AllMessageView: UIView {
     
@@ -27,7 +28,6 @@ final class AllMessageView: UIView {
         $0.backgroundColor = .clear
         $0.showsVerticalScrollIndicator = false
     }
-    
     private let disposeBag = DisposeBag()
     
     private func layout() {
@@ -49,12 +49,11 @@ final class AllMessageView: UIView {
         let dataSource = RxCollectionViewSectionedAnimatedDataSource<MessageSection>(
             configureCell: { dataSource, collectionView, indexPath, item in
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell, for: indexPath) as! MessageCollectionViewCell
-                cell.configure(info: item.studentInfo,
+                cell.configure(myNickname: item.senderName,
+                               opponentNickname: item.reciverName,
                                date: item.date,
                                isFavorite: item.isFavorite,
-                               isRead: false,
-                               isBlock: item.isBlocked,
-                               isReport:  item.isReported)
+                               isRead: item.isRead)
                 cell.onMoreButtonTap = { [weak self] in
                     self?.moreButtonTapped.accept(item)
                 }
@@ -88,11 +87,11 @@ final class AllMessageView: UIView {
     }
     
     private static func createLayout() -> UICollectionViewLayout {
-        let groupHeight: CGFloat = 170
-        let spacing: CGFloat = 15
+        let groupHeight: CGFloat = 150
+        let spacing: CGFloat = 12
 
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.5),  // count 매개변수를 사용할 경우 시스템이 자동으로 (전체너비 - spacing)/2 로 계산합니다.
+            widthDimension: .fractionalWidth(1.0),  // count 매개변수를 사용할 경우 시스템이 자동으로 (전체너비 - spacing)/2 로 계산합니다.
             heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -106,7 +105,7 @@ final class AllMessageView: UIView {
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
             subitem: item,
-            count: 2
+            count: 1
         )
         group.interItemSpacing = .fixed(spacing)
         // 좌우 inset 없이 그룹 전체를 사용
