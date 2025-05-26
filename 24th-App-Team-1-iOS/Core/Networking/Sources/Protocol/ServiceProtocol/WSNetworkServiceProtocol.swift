@@ -15,4 +15,5 @@ public protocol WSNetworkServiceProtocol {
     func request(endPoint: URLRequestConvertible) -> Single<Data>
     func upload(endPoint: URLRequestConvertible, binaryData: Data) -> Single<Bool>
     func requestWithStatusCode(endPoint: URLRequestConvertible) -> Single<(data: Data, statusCode: Int)>
+    func requestAsync(endPoint: URLRequestConvertible) async throws -> Data
 }

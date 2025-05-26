@@ -26,6 +26,7 @@ import KakaoSDKAuth
 import MessageFeature
 import KeychainSwift
 
+@available(iOS 16.0, *)
 public class SceneDelegate: UIResponder, UISceneDelegate {
     
     var window: UIWindow?
@@ -59,6 +60,7 @@ public class SceneDelegate: UIResponder, UISceneDelegate {
             MessageStroagePresentationAssembly(),
             MessageReportPresentationAssembly(),
             MessageBottomSheetPresentationAssembly(),
+            AnonymousProfileBottomSheetAssembly(),
             AllMainPresentationAssembly(),
             AllMainProfilePresentationAssembly(),
             AllMainProfileWebPresentationAssembly(),
@@ -96,6 +98,7 @@ public class SceneDelegate: UIResponder, UISceneDelegate {
     }
 }
 
+@available(iOS 16.0, *)
 extension SceneDelegate {
     
     //TODO: Coordinator 패턴으로 수정
@@ -180,6 +183,7 @@ extension SceneDelegate {
 }
 
 
+@available(iOS 16.0, *)
 extension SceneDelegate {
     private func setupMainViewController() {
         let voteMainViewController = DependencyContainer.shared.injector.resolve(VoteMainViewController.self)

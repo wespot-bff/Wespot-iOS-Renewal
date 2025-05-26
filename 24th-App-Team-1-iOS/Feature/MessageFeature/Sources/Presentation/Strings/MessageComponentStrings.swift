@@ -72,6 +72,8 @@ extension String.MessageTexts {
     static let anonymousProfileTitle: String = "익명 프로필을 선택해 주세요"
     static let anonymousProfileDes: String = "아래의 여러 프로필을 사용하여 상대방과 대화했어요\n어떤 프로필로 대화할 지 쪽지를 선택해 주세요"
     static let anonymousProfileMakeButton: String = "새로운 익명 프로필로 보내기"
+    static let makeAnonymousProfilePopTitle: String = "받는 사람에게 보여질\n익명 프로필을 설정해 주세요"
+
 
 }
 
@@ -82,5 +84,6 @@ extension String.MessageTexts.Identifier {
     static let messageCollectionViewCell = "MessageCollectionViewCell"
     static let MessageBottomSheetTabelViewCell = "MessageBottomSheetTabelViewCell"
     static let MessageReportCollectionViewCell = "MessageReportCollectionViewCell"
-
+    static let AnonymousProfileCell = "AnonymousProfileCell"
+    static let MessageHistoryCollectionViewCell = "MessageHistoryCollectionViewCell"
 }

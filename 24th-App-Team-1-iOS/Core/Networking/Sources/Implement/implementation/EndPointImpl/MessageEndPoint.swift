@@ -33,6 +33,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     case reportMessage(Encodable)
     // 쪽지 읽기
     case readMessage(Int)
+    // 익명프로필 리스트 조회
+    case fetchAnonymousProfileList(Int)
     
     public var spec: WSNetworkSpec {
         switch self {
@@ -61,6 +63,9 @@ public enum MessageEndPoint: WSNetworkEndPoint {
             return WSNetworkSpec(method: .put,
                                  url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)/read")
 
+        case .fetchAnonymousProfileList(let reciverId):
+            return WSNetworkSpec(method: .get,
+                                    url: "\(WSNetworkConfigure.baseURL)/messages/receiver/\(reciverId)/profiles")
         }
     }
     
@@ -87,6 +92,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .reportMessage(let body):
             return .requestBody(body)
         case .readMessage(_):
+            return .none
+        case .fetchAnonymousProfileList:
             return .none
         }
     }

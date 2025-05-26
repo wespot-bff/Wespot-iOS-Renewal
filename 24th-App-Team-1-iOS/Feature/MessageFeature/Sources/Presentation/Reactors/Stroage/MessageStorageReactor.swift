@@ -11,9 +11,12 @@ import Util
 
 import ReactorKit
 import RxSwift
+import UIKit
 
 public final class MessageStorageReactor: Reactor {
     private let usecase: MessageStorageUseCase
+    private let bottomSheetRouter: AnonymousProfileBottomSheetRouting
+    private let anonmousProfileUseCase: AnonymousProfileUseCase
 
     // MARK: - State
     public struct State {
@@ -29,6 +32,7 @@ public final class MessageStorageReactor: Reactor {
         @Pulse var sentCursorId: Int = 0
         @Pulse var hasNextSent: Bool = true
         @Pulse var disMissBottomSheet: Bool = false
+        @Pulse var anonymousProfileStatus: AnonymousProfileStatusEnum = .none
     }
 
     // MARK: - Action
@@ -41,6 +45,7 @@ public final class MessageStorageReactor: Reactor {
         case loadMoreMessages(type: String)          // 스크롤 하단 도달 시 추가 데이터 로드
         case buttonTapped(MessageContentModel, MessageBottomSheetButtonList)
         case reportMessage(MessageContentModel, String)
+        case presentBottomSheet(UIViewController, Int) // BottomSheet 호출
     }
 
     // MARK: - Mutation
@@ -58,7 +63,7 @@ public final class MessageStorageReactor: Reactor {
         case setDeleteMessage(MessageContentModel)
         case setReportMessage(MessageContentModel)
         case setBlockMessage(MessageContentModel)
-
+        case setBottomSheet(AnonymousProfileStatusEnum, UIViewController)
         case updateReceivedCursor(Int, Bool)
         case updateSentCursor(Int, Bool)
 
@@ -66,8 +71,12 @@ public final class MessageStorageReactor: Reactor {
 
     public var initialState: State
 
-    public init(usecase: MessageStorageUseCase) {
+    public init(usecase: MessageStorageUseCase,
+                anonmousProfileUseCase: AnonymousProfileUseCase,
+                bottomSheetRouter: AnonymousProfileBottomSheetRouting) {
         self.usecase = usecase
+        self.anonmousProfileUseCase = anonmousProfileUseCase
+        self.bottomSheetRouter = bottomSheetRouter
         self.initialState = State()
     }
 
@@ -109,6 +118,8 @@ public final class MessageStorageReactor: Reactor {
             }
         case .reportMessage(let message, let reportContent):
             return setReportMessage(message, reportContent)
+        case .presentBottomSheet(let vc, let receiverId):
+            return calculateBottomSheetList(receiverId: receiverId, vc: vc)
         }
     }
 
@@ -189,6 +200,11 @@ public final class MessageStorageReactor: Reactor {
                 newState.favoriteMessageList = updateDeleteMessage(in: state.favoriteMessageList,
                                                                         with: message)
             }
+
+        case .setBottomSheet(let status, let vc):
+            newState.anonymousProfileStatus = status
+            self.bottomSheetRouter.presentAnonymousProfileBottomSheet(status,
+                                                                      vc: vc)
 
         }
         return newState
@@ -374,5 +390,30 @@ extension MessageStorageReactor {
     
     private func pushToReportMessage(message: MessageContentModel) {
         
+    }
+    
+    private func calculateBottomSheetList(receiverId: Int, vc: UIViewController) -> Observable<Mutation> {
+        return Observable.create { [weak self] observer in
+            guard let self = self else {
+                observer.onCompleted()
+                return Disposables.create()
+            }
+            Task {
+                do {
+                    let entity = try await self.anonmousProfileUseCase.getAnonymousProfileList(receiverId: receiverId)
+                    if entity.count == 0 {
+                        observer.onNext(Mutation.setBottomSheet(.none, vc))
+                    } else if entity.count == 1 || entity.count == 2 {
+                        observer.onNext(Mutation.setBottomSheet(.OneOrTwo, vc))
+                    } else if entity.count == 3 {
+                        observer.onNext(Mutation.setBottomSheet(.third, vc))
+                    } else {
+                        observer.onNext(Mutation.setBottomSheet(.full, vc))
+                    }
+                }
+                observer.onCompleted()
+            }
+            return Disposables.create()
+        }
     }
 }

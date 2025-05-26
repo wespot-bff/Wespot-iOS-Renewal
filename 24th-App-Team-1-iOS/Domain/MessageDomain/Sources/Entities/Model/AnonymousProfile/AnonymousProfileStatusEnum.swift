@@ -13,7 +13,7 @@ public enum AnonymousProfileStatusEnum {
     case third
     case full
     
-    var totalHeight: CGFloat {
+    public var totalHeight: CGFloat {
         switch self {
         case .none:
             return 269
@@ -24,14 +24,14 @@ public enum AnonymousProfileStatusEnum {
         }
     }
     
-    var profileTableViewHeight: CGFloat {
+    public var profileTableViewHeight: CGFloat {
         switch self {
         case .none:
             return 34
         case .OneOrTwo:
             return 92
         case .third:
-            return 150
+            return 158
         case .full:
             return 208
         }

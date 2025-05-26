@@ -15,6 +15,12 @@ import RxSwift
 import RxCocoa
 
 public final class messageRepository: MessageRepositoryProtocol {
+    public func fetchAnonymousProfileList(receiverId: Int) async throws -> [AnonymousProfileEntity] {
+        let endPoint = MessageEndPoint.fetchAnonymousProfileList(receiverId)
+        let data = try await networkService.requestAsync(endPoint: endPoint)
+        let dtoList = try JSONDecoder().decode([AnonymousProfileListDTO].self, from: data)
+        return dtoList.map { $0.toDomain() }
+    }
     
     public func blockMessage(messageId: Int) -> RxSwift.Single<Bool> {
         let endPoint = MessageEndPoint.blockMessage(messageId)

@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol MessageRepositoryProtocol {
+    func fetchAnonymousProfileList(receiverId: Int) async throws -> [AnonymousProfileEntity]
     func fetchMessagesStatus() -> Single<MessageStatusResponseEntity>
     func fetchReservedMessages() -> Single<ReservedMessageResponseEntity?>
     func fetchReceivedMessages(cursorId: Int) -> Single<ReceivedMessageResponseEntity?>

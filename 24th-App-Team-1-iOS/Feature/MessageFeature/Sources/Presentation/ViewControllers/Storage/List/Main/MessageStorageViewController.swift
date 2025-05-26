@@ -122,8 +122,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         allMessageView
             .didSelectMessage
             .bind(onNext: {  message in
-//                reactor.action.onNext(.readMessage(message,
-//                                                   tpye: String.MessageTexts.messageRecievedType))
+                reactor.action.onNext(.presentBottomSheet(self, 0))
             })
             .disposed(by: disposeBag)
         

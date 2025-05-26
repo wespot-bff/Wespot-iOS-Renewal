@@ -114,6 +114,11 @@ struct DomainAssembly: Assembly {
             return FetchMessagesStatusUseCase(repository: repository)
         }
         
+        container.register(AnonymousProfileUseCase.self) { resolver in
+            let repository = resolver.resolve(MessageRepositoryProtocol.self)!
+            return AnonymousProfileUseCaseImpl(repository: repository)
+        }
+        
         container.register(FetchReceivedMessageUseCaseProtocol.self) { resolver in
             let repository = resolver.resolve(MessageRepositoryProtocol.self)!
             return FetchReceivedMessageUseCase(repository: repository)

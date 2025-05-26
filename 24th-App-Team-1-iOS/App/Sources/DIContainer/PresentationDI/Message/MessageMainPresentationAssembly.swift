@@ -39,6 +39,28 @@ struct MessageBottomSheetPresentationAssembly: Assembly {
     }
 }
 
+@available(iOS 16.0, *)
+struct AnonymousProfileBottomSheetAssembly: Assembly {
+    func assemble(container: Container) {
+        // 1) Reactor 등록 (router는 일단 nil)
+        container.register(AnonymousProfileReactor.self) { resolver in
+            let usecase = resolver.resolve(AnonymousProfileUseCase.self)!
+            return AnonymousProfileReactor(usecase: usecase,
+                                           router: nil)
+        }
+        // Reactor 생성 완료 후 Router 주입
+        .initCompleted { resolver, reactor in
+            reactor.router = resolver.resolve(AnonymousProfileBottomSheetRouting.self)
+        }
+
+        // 2) Router 등록
+        container.register(AnonymousProfileBottomSheetRouting.self) { resolver in
+            let reactor = resolver.resolve(AnonymousProfileReactor.self)!
+            return AnonymousProfileBottomSheetRouter(reactor: reactor)
+        }
+    }
+}
+
 struct MessageReportPresentationAssembly: Assembly {
     func assemble(container: Container) {
         container.register(MesssageReportViewController.self) { (resolver: Resolver, message: MessageContentModel, reactor: MessageStorageReactor) in
@@ -53,7 +75,11 @@ struct MessageStroagePresentationAssembly: Assembly {
     func assemble(container: Container) {
         container.register(MessageStorageReactor.self) { resolver in
             let messageStroageUsecase =  resolver.resolve(MessageStorageUseCase.self)!
-            return MessageStorageReactor(usecase: messageStroageUsecase)
+            let bottomSheetRouter = resolver.resolve(AnonymousProfileBottomSheetRouting.self)!
+            let usecase = resolver.resolve(AnonymousProfileUseCase.self)!
+            return MessageStorageReactor(usecase: messageStroageUsecase,
+                                         anonmousProfileUseCase: usecase,
+                                         bottomSheetRouter: bottomSheetRouter)
         }
         
         container.register(MessageStorageViewController.self) { resolver in

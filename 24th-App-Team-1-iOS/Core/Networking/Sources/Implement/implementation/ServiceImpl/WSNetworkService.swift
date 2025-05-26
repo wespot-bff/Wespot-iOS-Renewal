@@ -81,6 +81,32 @@ public final class WSNetworkService: WSNetworkServiceProtocol {
         }
     }
     
+    public func requestAsync(endPoint: URLRequestConvertible) async throws -> Data {
+        let dataResponse = await WSNetworkService.session
+            .request(endPoint)
+            .serializingData()
+            .response
+        switch dataResponse.result {
+        case .success(let data):
+            return data
+        case .failure(let error):
+            let statusCode = dataResponse.response?.statusCode
+            throw mapError(error: error, statusCode: statusCode)
+        }
+    }
+    
+    private func mapError(error: AFError, statusCode: Int?) -> WSNetworkError {
+        switch statusCode {
+        case 400:
+            return .badRequest(message: error.errorDescription ?? "")
+        case 401:
+            return .unauthorized
+        case 404:
+            return .notFound
+        default:
+            return .default(message: error.errorDescription ?? error.localizedDescription)
+        }
+    }
     
     public func upload(endPoint: URLRequestConvertible, binaryData: Data) -> Single<Bool> {
         return Single<Bool>.create { single in
