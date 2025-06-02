@@ -55,6 +55,7 @@ public class SceneDelegate: UIResponder, UISceneDelegate {
             VoteInventoryDetailPresentationAssembly(),
             MessageMainPresentationAssembly(),
             MessagePagePresentationAssembly(),
+            MessageSettingAssembly(),
             MessageHomePresentationAssembly(),
             MessageWritePresentationAssembly(),
             MessageStroagePresentationAssembly(),
@@ -177,6 +178,13 @@ extension SceneDelegate {
             let topViewController = self.window?.rootViewController?.topMostViewController()
             let SearchStudentForMessageWriteViewController = DependencyContainer.shared.injector.resolve(SearchStudentForMessageWriteViewController.self)
             topViewController?.navigationController?.pushViewController(SearchStudentForMessageWriteViewController, animated: true)
+        }
+        
+        NotificationCenter.default.addObserver(forName: .showMessageSettignsViewController, object: nil, queue: .main) { [weak self] _ in
+            guard let self else { return }
+            let topViewController = self.window?.rootViewController?.topMostViewController()
+            let messageSettingViewController = DependencyContainer.shared.injector.resolve(MessageSettingViewController.self)
+            topViewController?.navigationController?.pushViewController(messageSettingViewController, animated: true)
         }
     }
     

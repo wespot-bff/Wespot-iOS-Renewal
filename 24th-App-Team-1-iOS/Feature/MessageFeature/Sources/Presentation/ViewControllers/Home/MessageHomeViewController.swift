@@ -26,7 +26,6 @@ public final class MessageHomeViewController: BaseViewController<MessageHomeView
     }
 
     private let checkUnReadMessageButton = CountUnReadMessageView()
-
     
     //MARK: - LifeCycle
     
@@ -46,6 +45,7 @@ public final class MessageHomeViewController: BaseViewController<MessageHomeView
     
     
     //MARK: - Functions
+    
     public override func setupUI() {
         super.setupUI()
         [contentStackView].forEach {

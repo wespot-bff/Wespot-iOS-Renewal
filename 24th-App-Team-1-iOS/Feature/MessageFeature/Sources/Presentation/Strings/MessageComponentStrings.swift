@@ -73,6 +73,17 @@ extension String.MessageTexts {
     static let anonymousProfileDes: String = "아래의 여러 프로필을 사용하여 상대방과 대화했어요\n어떤 프로필로 대화할 지 쪽지를 선택해 주세요"
     static let anonymousProfileMakeButton: String = "새로운 익명 프로필로 보내기"
     static let makeAnonymousProfilePopTitle: String = "받는 사람에게 보여질\n익명 프로필을 설정해 주세요"
+    
+    // MARK: 쪽지 설정(차단, 알림설정) 관련 텍스트
+    
+    static let messageSettingTitle: String = "쪽지 설정"
+    static let messageSettingBlockTitle: String = "쪽지 차단"
+    static let messageNotificationTitle: String = "쪽지 알림"
+    static let getNotiAlertText: String = "쪽지 받기"
+    static let messageNotitDes: String = "설정 해제 시, 쪽지를 보내거나 받을 수 없어요"
+    static let messageAlertTitle: String = "쪽지 수신 및 발신"
+    static let getMessageAlertText: String = "알림 받기"
+    static let messageAlertDes: String = "쪽지 수신 알림 및 쪽지 관련 알림"
 
 
 }
@@ -86,4 +97,5 @@ extension String.MessageTexts.Identifier {
     static let MessageReportCollectionViewCell = "MessageReportCollectionViewCell"
     static let AnonymousProfileCell = "AnonymousProfileCell"
     static let MessageHistoryCollectionViewCell = "MessageHistoryCollectionViewCell"
+    static let MessageSettingTableViewCell = "MessageSettingTableViewCell"
 }

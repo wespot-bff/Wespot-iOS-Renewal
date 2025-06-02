@@ -20,9 +20,7 @@ import ReactorKit
 final class DetailMessageStorageViewController: BaseViewController<MessageStorageReactor> {
     
 
-    private let customNavigationBar = UIView().then {
-        $0.backgroundColor = .clear
-    }
+    private let customNavigationBar = DetailMessageCustomNaviBar()
     private let userImageView = UIImageView()
     private let userNameLabel = WSLabel(wsFont: .Header02)
     private let backButton = UIButton().then {
@@ -55,13 +53,28 @@ final class DetailMessageStorageViewController: BaseViewController<MessageStorag
         self.view.addSubviews(customNavigationBar,
                               contentView,
                               messageHistoryCollectionView)
-        self.customNavigationBar.addSubviews(backButton,
-                                             userImageView,
-                                             userNameLabel)
+        self.navigationBar.isHidden = true
     }
     
     public override func setupAutoLayout() {
         super.setupAutoLayout()
+        customNavigationBar.snp.makeConstraints {
+            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(60)
+        }
+        contentView.snp.makeConstraints {
+            $0.top.equalTo(self.customNavigationBar.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview().inset(24)
+            $0.height.equalTo(464)
+        }
+        
+        messageHistoryCollectionView.snp.makeConstraints {
+            $0.top.equalTo(contentView.snp.bottom).offset(24)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(24)
+            $0.height.equalTo(90)
+        }
 
     }
     
@@ -80,6 +93,12 @@ final class DetailMessageStorageViewController: BaseViewController<MessageStorag
     }
     
     private func bindAction(reactor: Reactor) {
+        customNavigationBar.backButton.rx.tap
+            .bind { _ in
+                
+            }
+            .disposed(by: disposeBag)
+        
 
     }
 }

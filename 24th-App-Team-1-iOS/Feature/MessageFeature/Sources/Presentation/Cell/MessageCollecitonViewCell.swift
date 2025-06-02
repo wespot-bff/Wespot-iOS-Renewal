@@ -71,6 +71,13 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     private let dateLabel = WSLabel(wsFont: .Body09).then {
         $0.textColor = DesignSystemAsset.Colors.gray300.color
     }
+    private let unBlockButton = UIButton().then {
+        $0.setTitle("차단 해제", for: .normal)
+        $0.titleLabel?.font = WSFont.Body09.font()
+        $0.setTitleColor(DesignSystemAsset.Colors.gray100.color, for: .normal)
+        $0.backgroundColor = DesignSystemAsset.Colors.gray500.color
+        $0.layer.cornerRadius = 18
+    }
     
     private func layout() {
         self.backgroundColor = DesignSystemAsset.Colors.gray700.color
@@ -83,6 +90,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                                      meView,
                                      nameView,
                                      myNameLabel,
+                                     unBlockButton,
                                      opponentNameLabel,
                                      dateLabel)
         
@@ -154,6 +162,13 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             $0.trailing.equalToSuperview().inset(14)
             $0.bottom.equalToSuperview().inset(16)
         }
+        
+        unBlockButton.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(16)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.width.equalTo(65)
+            $0.height.equalTo(28)
+        }
 
     }
     
@@ -162,6 +177,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                    date: String,
                    isFavorite: Bool,
                    isAnonymous: Bool = false,
+                   isBlocked: Bool = false,
                    isRead: Bool) {
 
         self.redDot.isHidden = isRead
@@ -177,6 +193,13 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             self.nameView.snp.updateConstraints {
                 $0.width.equalTo(39)
             }
+        }
+        if isBlocked {
+            unBlockButton.isHidden = false
+            moreButton.isHidden = true
+        } else {
+            moreButton.isHidden = false
+            unBlockButton.isHidden = true
         }
         self.nameLabel.text = isAnonymous ? "익명" : "실명"
         dateLabel.text = date

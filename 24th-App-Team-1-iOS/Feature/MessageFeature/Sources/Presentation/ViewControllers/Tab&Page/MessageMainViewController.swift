@@ -60,7 +60,8 @@ public final class MessageMainViewController: BaseViewController<MessageMainView
         super.setupAttributes()
         
         navigationBar.do {
-            $0.setNavigationBarUI(property: .default)
+            $0.setNavigationBarUI(property: .default,
+                                  secondRightItemImage: DesignSystemAsset.Images.icNavigationBarSettingFiled.image)
             $0.setNavigationBarAutoLayout(property: .default)
         }
     }
@@ -70,7 +71,7 @@ public final class MessageMainViewController: BaseViewController<MessageMainView
         
         self.rx.viewWillAppear
             .bind(with: self) { owner, _ in
-
+                
             }
             .disposed(by: disposeBag)
         
@@ -106,6 +107,14 @@ public final class MessageMainViewController: BaseViewController<MessageMainView
             }
             .disposed(by: disposeBag)
         
+        navigationBar.rightBarButton2.rx
+            .tap
+            .throttle(.milliseconds(300),
+                        scheduler: MainScheduler.instance)
+            .bind(with: self) { owner, _ in
+                NotificationCenter.default.post(name: .showMessageSettignsViewController, object: nil)
+            }
+            .disposed(by: disposeBag)
 
     }
 }

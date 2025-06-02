@@ -35,6 +35,7 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     case readMessage(Int)
     // 익명프로필 리스트 조회
     case fetchAnonymousProfileList(Int)
+    case bookMark(Int)
     
     public var spec: WSNetworkSpec {
         switch self {
@@ -43,7 +44,7 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .fetchReservedMessages:
             return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages/scheduled")
         case .fetchMessages:
-            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages")
+            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/v2/messages")
         case .searchStudent:
             return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/users/search")
         case .checkProfanity:
@@ -55,17 +56,20 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .deleteMessage(let messageID):
             return WSNetworkSpec(method: .delete, url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)")
         case .blockMessage(let messageID):
-                return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)/block")
+                return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/v2/messages/\(messageID)/block")
         case .reportMessage:
             return WSNetworkSpec(method: .post,
                                  url: "\(WSNetworkConfigure.baseURL)/reports")
         case .readMessage(let messageID):
             return WSNetworkSpec(method: .put,
-                                 url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)/read")
+                                 url: "\(WSNetworkConfigure.baseURL)/v2/messages/\(messageID)/read")
 
         case .fetchAnonymousProfileList(let reciverId):
             return WSNetworkSpec(method: .get,
                                     url: "\(WSNetworkConfigure.baseURL)/messages/receiver/\(reciverId)/profiles")
+        case .bookMark(let messageID):
+            return WSNetworkSpec(method: .put,
+                                 url: "\(WSNetworkConfigure.baseURL)/v2/messages/\(messageID)/bookmark")
         }
     }
     
@@ -94,6 +98,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .readMessage(_):
             return .none
         case .fetchAnonymousProfileList:
+            return .none
+        case .bookMark:
             return .none
         }
     }

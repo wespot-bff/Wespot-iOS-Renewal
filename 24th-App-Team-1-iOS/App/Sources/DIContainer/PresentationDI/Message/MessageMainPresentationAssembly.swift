@@ -10,6 +10,7 @@ import MessageFeature
 import MessageDomain
 
 import Swinject
+import UIKit
 
 struct MessageHomePresentationAssembly: Assembly {
     func assemble(container: Container) {
@@ -119,7 +120,7 @@ struct MessagePagePresentationAssembly: Assembly {
     }
 }
 
-    struct MessageMainPresentationAssembly: Assembly {
+struct MessageMainPresentationAssembly: Assembly {
         func assemble(container: Container) {
             container.register(MessageMainViewReactor.self) { resolver in
                 return MessageMainViewReactor()
@@ -132,4 +133,21 @@ struct MessagePagePresentationAssembly: Assembly {
             }
         }
         
+}
+
+struct MessageSettingAssembly: Assembly {
+    func assemble(container: Container) {
+        // MessageSettingReactor 등록 (문제 없어 보임)
+        container.register(MessageSettingReactor.self) { resolver in
+            let router = MessageSettingRouter()
+            return MessageSettingReactor(router: router)
+        }
+        
+        // MessageSettingViewController 등록 (문제 없어 보임)
+        container.register(MessageSettingViewController.self) { resolver in
+            // MessageSettingReactor는 위에서 등록되므로, 여기서 resolve는 이론상 가능해야 합니다.
+            let reactor = resolver.resolve(MessageSettingReactor.self)!
+            return MessageSettingViewController(reactor: reactor)
+        }
     }
+}
