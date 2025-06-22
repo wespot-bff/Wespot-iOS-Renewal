@@ -10,6 +10,7 @@ import Foundation
 public struct SendMessageRequest: Equatable {
     public let content: String
     public let reciverId: Int
-    public let senderName: String
+    public let anonymousProfileName: String
+    public let anonymousImageUrl: String
     public let isAnonymous: Bool
 }

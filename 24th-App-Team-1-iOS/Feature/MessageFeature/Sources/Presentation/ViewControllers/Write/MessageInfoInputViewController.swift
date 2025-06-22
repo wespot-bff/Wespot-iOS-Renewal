@@ -27,16 +27,17 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
         $0.textAlignment = .left
     }
     
-    private let reciverView = UIView()
+    private let reciverView = UIView().then {
+        $0.layer.cornerRadius = 12
+        $0.backgroundColor = DesignSystemAsset.Colors.gray700.color
+    }
     private let reciverImageView = UIImageView().then {
         $0.layer.cornerRadius = 15
         $0.contentMode = .scaleAspectFit
         $0.clipsToBounds = true
     }
     private let reciverName = WSLabel(wsFont: .Body04)
-    private let changerReciverButton = UIButton().then {
-        $0.setImage(DesignSystemAsset.Images.icProfileEditSelected.image, for: .normal)
-    }
+
     private let reciverStackView = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 12
@@ -49,6 +50,7 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
     private let contentTextField = WSTextField(state: .default).then {
         $0.contentVerticalAlignment = .top
         $0.textAlignment = .left
+        $0.textColor = .white
         $0.isUserInteractionEnabled = false
         $0.snp.makeConstraints {
             $0.height.equalTo(170)
@@ -71,38 +73,21 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
         $0.textColor = DesignSystemAsset.Colors.gray100.color
         $0.textAlignment = .left
     }
-    private let posterView = UIView()
-    private let changePostNameButton = UIButton().then {
-        $0.setImage(DesignSystemAsset.Images.icProfileEditSelected.image, for: .normal)
+    private let posterView = UIView().then {
+        $0.layer.cornerRadius = 12
+        $0.backgroundColor = DesignSystemAsset.Colors.gray700.color
     }
     private let posterImageView = UIImageView().then {
         $0.layer.cornerRadius = 15
         $0.contentMode = .scaleAspectFit
         $0.clipsToBounds = true
-
     }
     private let posterName = WSLabel(wsFont: .Body04)
     private let posterStackView = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 12
     }
-    private let anonymousSendLabel = WSLabel(wsFont: .Body02,
-                                            text: "익명으로 보내기")
-    private let anonymousDesLabel = WSLabel(wsFont: .Body08,
-                                           text: "이 기능을 끄면 실명으로 전송되어요").then {
-        $0.textColor = DesignSystemAsset.Colors.gray400.color
-    }
-    private let anonymousToggle = UISwitch().then {
-        $0.isOn = false
-        $0.snp.makeConstraints {
-            $0.width.equalTo(52)
-            $0.height.equalTo(30)
-        }
-    }
-    private let anonymousLabelStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 6
-    }
+
     private let postButton = WSButton(wsButtonType: .default(12))
     
     //MARK: - LifeCycle
@@ -125,7 +110,7 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
             self.reciverStackView.addArrangedSubview($0)
         }
         
-        reciverView.addSubviews(reciverImageView, reciverName, changerReciverButton)
+        reciverView.addSubviews(reciverImageView, reciverName)
         
         [contentLabel,
          contentTextField,
@@ -136,20 +121,14 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
          posterView].forEach {
             self.posterStackView.addArrangedSubview($0)
         }
-        posterView.addSubviews(posterName, posterImageView, changePostNameButton)
-        [anonymousSendLabel,
-         anonymousDesLabel].forEach {
-            self.anonymousLabelStackView.addArrangedSubview($0)
-        }
+        posterView.addSubviews(posterName, posterImageView)
+
         [reciverStackView,
          contentStackView,
          posterStackView,
-         anonymousLabelStackView,
-         anonymousToggle,
          postButton].forEach {
             self.view.addSubview($0)
         }
-        posterView.addSubviews(posterName, posterImageView, changePostNameButton)
         
         contentStackView.setCustomSpacing(12, after: contentLabel)
         contentStackView.setCustomSpacing(4, after: contentTextField)
@@ -169,15 +148,7 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
             $0.top.equalTo(contentStackView.snp.bottom)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
-        
-        anonymousLabelStackView.snp.makeConstraints {
-            $0.top.equalTo(posterStackView.snp.bottom).offset(24)
-            $0.leading.equalToSuperview().offset(30)
-        }
-        anonymousToggle.snp.makeConstraints {
-            $0.top.equalTo(posterStackView.snp.bottom).offset(34)
-            $0.trailing.equalToSuperview().inset(24)
-        }
+
         postButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
@@ -192,12 +163,6 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
         
         reciverName.snp.makeConstraints {
             $0.leading.equalTo(reciverImageView.snp.trailing).offset(5)
-            $0.centerY.equalToSuperview()
-        }
-        
-        changerReciverButton.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.trailing.equalToSuperview().inset(20)
             $0.centerY.equalToSuperview()
         }
         
@@ -218,12 +183,6 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
             $0.leading.equalTo(posterImageView.snp.trailing).offset(5)
             $0.centerY.equalToSuperview()
         }
-        
-        changePostNameButton.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.trailing.equalToSuperview().inset(20)
-            $0.centerY.equalToSuperview()
-        }
     }
     
     public override func setupAttributes() {
@@ -238,8 +197,6 @@ public final class MessageInfoInputViewController: BaseViewController<MessageWri
             $0.isEnabled = true
             $0.setupButton(text: "쪽지 보내기")
         }
-        posterName.text = UserDefaultsManager.shared.userName ?? "WeSpot님"
-        posterImageView.kf.setImage(with: URL(string: UserDefaultsManager.shared.userProfileImage ?? ""), placeholder: DesignSystemAsset.Images.icDefaultProfile.image)
     }
         
     public override func bind(reactor: MessageWriteReactor) {
@@ -272,24 +229,17 @@ extension MessageInfoInputViewController {
                     .show()
             }
             .disposed(by: disposeBag)
-        
-        anonymousToggle.rx
-            .isOn
-            .observe(on: MainScheduler.asyncInstance)
-            .bind(with: self) {  this, value in
-                reactor.action.onNext(.anonymousToggle(value))
-            }
-            .disposed(by: disposeBag)
+
         
         postButton.rx.tap
             .observe(on: MainScheduler.asyncInstance)
             .bind(with: self, onNext: {  this, _ in
                 WSAlertBuilder(showViewController: this)
                     .setAlertType(type: .titleWithMeesage)
-                    .setTitle(title: "쪽지를 예약하시나요?",
+                    .setTitle(title: "쪽지를 전송할게요",
                               titleAlignment: .left)
-                    .setMessage(message: "오늘 밤 10시에 상대에게 쪽지를 전달해 드릴게요\n예약 후 수정은 가능하지만 전송 취소는 어려워요")
-                    .setConfirm(text: "네 예약할래요")
+                    .setMessage(message: "쪽지 전송 후에는 수정이나 전송 취소가 불가하며\n남은 쪽지 개수에서 1개가 차감돼요")
+                    .setConfirm(text: "네 좋아요!")
                     .setCancel(text: "닫기")
                     .action(.confirm)
                     {
@@ -301,6 +251,23 @@ extension MessageInfoInputViewController {
     }
     
     private func bindState(reactor: MessageWriteReactor) {
+        reactor.state
+            .map {$0.userName}
+            .bind(with: self) {  this, name in
+                print("보내는 사람 이름: \(name)")
+                this.posterName.text = name
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map {$0.profileImageURL}
+            .bind(with: self) {  this, url in
+                print("보내는 사람 이미지 URL: \(url)")
+                this.posterImageView.kf.setImage(with: URL(string: url), placeholder: DesignSystemAsset.Images.icBasicProfile.image)
+            }
+            .disposed(by: disposeBag)
+            
+        
         reactor.state
             .map {$0.selectedUser}
             .compactMap {$0}
@@ -320,10 +287,18 @@ extension MessageInfoInputViewController {
         reactor.pulse(\.$completeSendMessage)
             .observe(on: MainScheduler.instance)
             .bind(with: self) {  this, complete in
-                this.navigationController?.popToRootViewController(animated: true)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    reactor.globalState.event.onNext(.showToast("전송 예약이 완료되었어요!", type: .check))
+                if complete {
+                    this.navigationController?.popToRootViewController(animated: true)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        reactor.globalState.event.onNext(.showToast("전송 예약이 완료되었어요!", type: .check))
+                    }
+                } else {
+                    this.navigationController?.popToRootViewController(animated: true)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        reactor.globalState.event.onNext(.showToast("메시지 전송이 실패했어요 :(", type: .warning))
+                    }
                 }
+
             }
             .disposed(by: disposeBag)
     }

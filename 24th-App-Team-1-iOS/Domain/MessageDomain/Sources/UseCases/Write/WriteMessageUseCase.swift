@@ -9,7 +9,7 @@ import RxSwift
 
 public protocol WriteMessageUseCase {
     func checkProfanity(message: String) -> Single<Bool>
-    func sendMessage(content: String, receiverId: Int, senderName: String, isAnonymous: Bool) -> Single<SendMessageResponseEntity>
+    func sendMessage(content: String, receiverId: Int, senderName: String, senderImageURL: String, isAnonymous: Bool) -> Single<Bool>
 }
 public final class WriteMessageUseCaseImpl: WriteMessageUseCase {
     
@@ -19,8 +19,8 @@ public final class WriteMessageUseCaseImpl: WriteMessageUseCase {
         self.repository = repository
     }
     
-    public func sendMessage(content: String, receiverId: Int, senderName: String, isAnonymous: Bool) -> RxSwift.Single<SendMessageResponseEntity> {
-        let query = SendMessageRequest(content: content, reciverId: receiverId, senderName: senderName, isAnonymous: isAnonymous)
+    public func sendMessage(content: String, receiverId: Int, senderName: String, senderImageURL: String, isAnonymous: Bool) -> RxSwift.Single<Bool> {
+        let query = SendMessageRequest(content: content, reciverId: receiverId, anonymousProfileName: senderName, anonymousImageUrl: senderImageURL, isAnonymous: isAnonymous)
         return repository.sendMessage(query: query)
     }
     

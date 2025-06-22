@@ -207,9 +207,7 @@ extension SearchStudentForMessageWriteViewController {
             .tap
             .filter { reactor.currentState.selectedUser != nil}
             .bind(with: self) {  this, _ in
-                let vc = MessageWriteViewController(reactor: reactor)
-                this.navigationController?.pushViewController(vc,
-                                                              animated: true)
+                reactor.action.onNext(.presentAnonymousBottomSheet(reactor.currentState.selectedUser?.id ?? 0, self))
             }
             .disposed(by: disposeBag)
         
@@ -221,6 +219,18 @@ extension SearchStudentForMessageWriteViewController {
     }
     
     private func bindState(reactor: MessageWriteReactor) {
+        
+        reactor.pulse(\.$completSetSenderProfile)
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(with: self) { owner, completed in
+                if completed {
+                    print("completSetSenderProfile is true. Transitioning to MessageWriteViewController.")
+                    let messageWriteVC = MessageWriteViewController(reactor: reactor)
+                    owner.navigationController?.pushViewController(messageWriteVC, animated: true)
+                }
+            }
+            .disposed(by: disposeBag)
+
         
         reactor.pulse(\.$serachResult)
             .observe(on: MainScheduler.asyncInstance)

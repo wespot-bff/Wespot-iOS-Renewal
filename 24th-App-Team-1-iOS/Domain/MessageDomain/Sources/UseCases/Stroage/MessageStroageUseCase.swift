@@ -8,7 +8,7 @@
 import RxSwift
 
 public protocol MessageStorageUseCase {
-    func getMessage(query: GetMessageRequest) -> Single<ReceivedMessageResponseEntity>
+    func getMessage() -> Single<[MessageRoomEntity]>
     func readMessage(messageId: Int) -> Single<Bool>
     func deleteMessage(messageId: Int) -> Single<Bool>
     func reportMessage(messageId: Int, content: String) -> Single<Bool>
@@ -23,8 +23,8 @@ public final class MessageStorageUseCaseImpl: MessageStorageUseCase {
         self.repository = repository
     }
     
-    public func getMessage(query: GetMessageRequest) -> Single<ReceivedMessageResponseEntity> {
-        return repository.getMessage(query: query)
+    public func getMessage() -> Single<[MessageRoomEntity]> {
+        return repository.getMessage()
     }
     
     public func readMessage(messageId: Int) -> RxSwift.Single<Bool> {

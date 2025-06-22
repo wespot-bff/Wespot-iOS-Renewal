@@ -21,7 +21,7 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
     
     //MARK: - Properties
     
-    private var message: MessageContentModel?
+    private var message: MessageRoomEntity?
     private let buttonTableView = UITableView().then {
         $0.register(MessageBottomSheetTabelViewCell.self,
                     forCellReuseIdentifier: String.MessageTexts.Identifier.MessageBottomSheetTabelViewCell)
@@ -34,7 +34,7 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
         super.init()
     }
     
-    public convenience init(message: MessageContentModel) {
+    public convenience init(message: MessageRoomEntity) {
         self.init()
         self.message = message
     }
@@ -46,7 +46,8 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = DesignSystemAsset.Colors.gray600.color
-
+        self.buttonTableView.rx.setDelegate(self)
+            .disposed(by: disposeBag)
     }
     
     //MARK: - Functions
@@ -123,7 +124,7 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
 
 extension MessageStorageBottomSheetViewController {
     private func showAlert(reacotr: MessageStorageReactor,
-                           message: MessageContentModel,
+                           message: MessageRoomEntity,
                            type: MessageBottomSheetButtonList) {
         var title: String = ""
         var description: String = ""
@@ -174,18 +175,19 @@ extension MessageStorageBottomSheetViewController {
     }
 }
 
-extension MessageStorageBottomSheetViewController: UITableViewDelegate {
-    
-    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let totalRows = tableView.numberOfRows(inSection: indexPath.section)
-        if indexPath.row == totalRows - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.width, bottom: 0, right: 0)
-        } else {
-            cell.separatorInset = .zero
-        }
-    }
-    
-    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 56
-    }
-}
+
+//extension MessageStorageBottomSheetViewController: UITableViewDelegate {
+//    
+//    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        let totalRows = tableView.numberOfRows(inSection: indexPath.section)
+//        if indexPath.row == totalRows - 1 {
+//            cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.width, bottom: 0, right: 0)
+//        } else {
+//            cell.separatorInset = .zero
+//        }
+//    }
+//    
+//    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return 56
+//    }
+//}

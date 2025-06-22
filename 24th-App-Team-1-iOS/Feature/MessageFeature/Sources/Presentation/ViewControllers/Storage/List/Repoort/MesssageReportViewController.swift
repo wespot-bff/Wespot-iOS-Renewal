@@ -120,12 +120,14 @@ public final class MesssageReportViewController: BaseViewController<MessageStora
     )
     
     // MARK: - Initializer
+    
     public convenience init(message: MessageContentModel) {
         self.init()
         self.message = message
     }
     
     // MARK: - LifeCycle
+    
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
     }
@@ -188,7 +190,7 @@ public final class MesssageReportViewController: BaseViewController<MessageStora
                 guard let selectedContent = selectedContent.first else {
                     return
                 }
-                reactor.action.onNext(.reportMessage((self.message)!, selectedContent))
+               // reactor.action.onNext(.reportMessage((self.message)!, selectedContent))
                 
                 self.view.window?.rootViewController?.dismiss(animated: false, completion: nil)
             })

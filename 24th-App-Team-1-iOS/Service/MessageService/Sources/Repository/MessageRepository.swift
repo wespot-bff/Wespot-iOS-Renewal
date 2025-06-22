@@ -15,6 +15,8 @@ import RxSwift
 import RxCocoa
 
 public final class messageRepository: MessageRepositoryProtocol {
+    
+    
     public func fetchAnonymousProfileList(receiverId: Int) async throws -> [AnonymousProfileEntity] {
         let endPoint = MessageEndPoint.fetchAnonymousProfileList(receiverId)
         let data = try await networkService.requestAsync(endPoint: endPoint)
@@ -40,29 +42,31 @@ public final class messageRepository: MessageRepositoryProtocol {
             .asSingle()
     }
     
-    public func getMessage(query: GetMessageRequest) -> Single<ReceivedMessageResponseEntity> {
-        let query = GetMessageRequestDTO(cursorId: query.cursorId, type: query.type)
-        let endPoint = MessageEndPoint.getMessage(query)
+    public func getMessage() -> Single<[MessageRoomEntity]> {
+        let endPoint = MessageEndPoint.getMessageRoomList
+
         return networkService.request(endPoint: endPoint)
             .asObservable()
             .logErrorIfDetected(category: Network.error)
-            .decodeMap(ReceievedMessageResponseDTO.self)
-            .map { $0.toDomain() }
+            .decodeMap([MessageRoomDTO].self)
+            .map { dtoArray in
+                dtoArray.map { $0.toDomain() }
+            }
             .asSingle()
     }
     
-    public func sendMessage(query: SendMessageRequest) -> RxSwift.Single<SendMessageResponseEntity> {
-        let query = SendMessageRequestDTO(content: query.content,
-                                          receiverId: query.reciverId,
-                                          senderName: query.senderName,
-                                          isAnonymous: query.isAnonymous)
+    public func sendMessage(query: SendMessageRequest) -> RxSwift.Single<Bool> {
+        let query = SendMessageRequestDTO(content: query.content, receiverId: query.reciverId,
+                                          anonymousProfileName: query.anonymousProfileName, isAnonymous: query.isAnonymous, anonymousImageUrl: query.anonymousImageUrl)
         let endPoint = MessageEndPoint.sendMessage(query)
-        return networkService.request(endPoint: endPoint)
-            .asObservable()
-            .logErrorIfDetected(category: Network.error)
-            .decodeMap(SendMessageResponseDTO.self)
-            .map { $0.toDomain() }
-            .asSingle()
+        return networkService.requestWithStatusCode(endPoint: endPoint)
+            .flatMap { response -> Single<Bool> in
+                if response.statusCode == 201 {
+                    return Single.just(true)
+                } else  {
+                    return Single.just(false)
+                }
+            }
     }
     
     public func readMessage(messageId: Int) -> Single<Bool> {

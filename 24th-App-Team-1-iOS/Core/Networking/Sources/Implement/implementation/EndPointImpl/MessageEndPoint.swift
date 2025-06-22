@@ -24,7 +24,7 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     // 쪽지 보내기
     case sendMessage(Encodable)
     // 받은 쪽지
-    case getMessage(Encodable)
+    case getMessageRoomList
     // 쪽지 삭제
     case deleteMessage(Int)
     // 쪽지 차단
@@ -35,7 +35,9 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     case readMessage(Int)
     // 익명프로필 리스트 조회
     case fetchAnonymousProfileList(Int)
+    
     case bookMark(Int)
+            
     
     public var spec: WSNetworkSpec {
         switch self {
@@ -44,32 +46,35 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .fetchReservedMessages:
             return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages/scheduled")
         case .fetchMessages:
-            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/v2/messages")
+            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURLV2)/messages")
         case .searchStudent:
             return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/users/search")
         case .checkProfanity:
             return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/check-profanity")
         case .sendMessage:
-            return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/messages/send")
-        case .getMessage:
-            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages")
+            return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURLV2)/messages")
+        case .getMessageRoomList:
+            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURLV2)/messages")
         case .deleteMessage(let messageID):
             return WSNetworkSpec(method: .delete, url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)")
         case .blockMessage(let messageID):
-                return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURL)/v2/messages/\(messageID)/block")
+                return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/block")
         case .reportMessage:
             return WSNetworkSpec(method: .post,
                                  url: "\(WSNetworkConfigure.baseURL)/reports")
         case .readMessage(let messageID):
             return WSNetworkSpec(method: .put,
-                                 url: "\(WSNetworkConfigure.baseURL)/v2/messages/\(messageID)/read")
+                                 url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/read")
 
         case .fetchAnonymousProfileList(let reciverId):
             return WSNetworkSpec(method: .get,
                                     url: "\(WSNetworkConfigure.baseURL)/messages/receiver/\(reciverId)/profiles")
         case .bookMark(let messageID):
             return WSNetworkSpec(method: .put,
-                                 url: "\(WSNetworkConfigure.baseURL)/v2/messages/\(messageID)/bookmark")
+                                 url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/bookmark")
+
+
+
         }
     }
     
@@ -87,8 +92,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
             return .requestBody(body)
         case .sendMessage(let body):
             return .requestBody(body)
-        case .getMessage(let query):
-            return .requestQuery(query)
+        case .getMessageRoomList:
+            return .none
         case .deleteMessage:
             return .none
         case .blockMessage:
@@ -101,6 +106,7 @@ public enum MessageEndPoint: WSNetworkEndPoint {
             return .none
         case .bookMark:
             return .none
+
         }
     }
     

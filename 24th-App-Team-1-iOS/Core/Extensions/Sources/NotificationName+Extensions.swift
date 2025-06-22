@@ -24,4 +24,5 @@ public extension Notification.Name {
     static let showMessageReportViewController = Notification.Name("showMessageReportViewController")
     static let showProfileSettingViewController = Notification.Name("showProfileSettingViewController")
     static let showMessageSettignsViewController = Notification.Name("showMessageSettingsViewController")
+    static let showInputMessageWirteViewController = Notification.Name("showInputMessageWirteViewController")
 }

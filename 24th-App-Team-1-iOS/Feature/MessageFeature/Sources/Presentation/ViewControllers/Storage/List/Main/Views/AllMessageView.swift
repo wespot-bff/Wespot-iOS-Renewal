@@ -16,10 +16,10 @@ import DesignSystem
 
 final class AllMessageView: UIView {
     
-    let didSelectMessage = PublishRelay<MessageContentModel>()
-    let moreButtonTapped = PublishRelay<MessageContentModel>()
-    let favoriteButtonTapped = PublishRelay<MessageContentModel>()
-    private let messagesRelay = BehaviorRelay<[MessageContentModel]>(value: [])
+    let didSelectMessage = PublishRelay<MessageRoomEntity>()
+    let moreButtonTapped = PublishRelay<MessageRoomEntity>()
+    let favoriteButtonTapped = PublishRelay<MessageRoomEntity>()
+    private let messagesRelay = BehaviorRelay<[[MessageRoomEntity]]>(value: [])
     private var messageIndexDict = [Int: Int]()
     private let sectionsRelay = BehaviorRelay<[MessageSection]>(value: [MessageSection(header: "Messages", items: [])])
 
@@ -39,21 +39,24 @@ final class AllMessageView: UIView {
         }
     }
     
-    func loadMessages(newMessages: [MessageContentModel]) {
+    func loadMessages(newMessages: [MessageRoomEntity]) {
         // 전체 새로운 목록으로 대체 (애니메이션 효과와 함께 업데이트됨)
         let newSection = MessageSection(header: "Messages", items: newMessages)
         sectionsRelay.accept([newSection])
+        print(sectionsRelay.value)
     }
     
     private func bind() {
         let dataSource = RxCollectionViewSectionedAnimatedDataSource<MessageSection>(
             configureCell: { dataSource, collectionView, indexPath, item in
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell, for: indexPath) as! MessageCollectionViewCell
-                cell.configure(myNickname: item.senderName,
-                               opponentNickname: item.reciverName,
-                               date: item.date,
-                               isFavorite: item.isFavorite,
-                               isRead: item.isRead)
+                cell.configure(myNickname: item.senderProfile.name,
+                               opponentNickname: item.receiverProfile.name,
+                               date: item.latestChatTime,
+                               isFavorite: item.isBookmarked,
+                               isAnonymous: item.senderProfile.isAnonymous,
+                               isBlocked: item.isBlocked,
+                               isRead: item.isExistsUnreadMessage)
                 cell.onMoreButtonTap = { [weak self] in
                     self?.moreButtonTapped.accept(item)
                 }
@@ -69,7 +72,7 @@ final class AllMessageView: UIView {
             .bind(to: messageCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        messageCollectionView.rx.modelSelected(MessageContentModel.self)
+        messageCollectionView.rx.modelSelected(MessageRoomEntity.self)
             .bind(with: self) { this, message in
                 this.didSelectMessage.accept(message)
             }

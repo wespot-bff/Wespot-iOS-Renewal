@@ -9,7 +9,7 @@ import UIKit
 
 public final class WSMakeAnonymousProfileButton: UIButton {
 
-    private let plusImageView = UIImageView(image: DesignSystemAsset.Images.icPlusBlack.image).then {
+    private let plusImageView = UIImageView(image: DesignSystemAsset.Images.icPlus.image).then {
         $0.contentMode = .scaleAspectFit
         $0.backgroundColor = .clear
     }

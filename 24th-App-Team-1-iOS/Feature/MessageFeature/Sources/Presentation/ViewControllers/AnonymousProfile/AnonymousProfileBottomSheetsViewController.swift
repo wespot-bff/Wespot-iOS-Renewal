@@ -17,7 +17,7 @@ import RxCocoa
 import RxDataSources
 
 final class AnonymousProfileBottomSheetsViewController: BaseViewController<AnonymousProfileReactor> {
-    
+    public var onProfileCreated: ((_ name: String, _ imageUrl: String) -> Void)?
     private let titleLabel = WSLabel(wsFont: .Body01, text: String.MessageTexts.anonymousProfileTitle)
     private let desLabel = WSLabel(wsFont: .Body06, text: String.MessageTexts.anonymousProfileDes).then {
         $0.textColor = DesignSystemAsset.Colors.gray300.color
@@ -82,11 +82,11 @@ final class AnonymousProfileBottomSheetsViewController: BaseViewController<Anony
         }
         profileTableView.snp.makeConstraints {
             $0.top.equalTo(desLabel.snp.bottom).offset(28)
-            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.horizontalEdges.equalToSuperview().inset(28)
             $0.height.equalTo(status?.profileTableViewHeight ?? 0)
         }
         makeProfileButton.snp.makeConstraints {
-            $0.top.equalTo(profileTableView.snp.bottom).offset(28)
+            $0.top.equalTo(profileTableView.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(28)
             $0.height.equalTo(34)
         }
@@ -120,7 +120,8 @@ final class AnonymousProfileBottomSheetsViewController: BaseViewController<Anony
         makeProfileButton.rx.tap
             .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
             .bind(with: self) { this, _ in
-                reactor.action.onNext(.makeNewProfile(self))
+                guard let callback = this.onProfileCreated else { return }
+                reactor.action.onNext(.presentMakeProfilePopup(vc: this, onProfileCreated: callback))
             }
             .disposed(by: disposeBag)
     }

@@ -10,6 +10,7 @@ import Foundation
 public struct SendMessageRequestDTO: Encodable {
     public let content: String
     public let receiverId: Int
-    public let senderName: String
+    public let anonymousProfileName: String
     public let isAnonymous: Bool
+    public let anonymousImageUrl: String
 }

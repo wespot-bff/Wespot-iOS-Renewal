@@ -186,6 +186,13 @@ extension SceneDelegate {
             let messageSettingViewController = DependencyContainer.shared.injector.resolve(MessageSettingViewController.self)
             topViewController?.navigationController?.pushViewController(messageSettingViewController, animated: true)
         }
+        
+        NotificationCenter.default.addObserver(forName: .showInputMessageWirteViewController, object: nil, queue: .main) { [weak self] _ in
+            guard let self else { return }
+            let topViewController = self.window?.rootViewController?.topMostViewController()
+            let MessageWirteViewController = DependencyContainer.shared.injector.resolve(MessageWriteViewController.self)
+            topViewController?.navigationController?.pushViewController(MessageWirteViewController, animated: true)
+        }
     }
     
 }

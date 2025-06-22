@@ -36,7 +36,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     }
     private let switchImage = UIImageView().then {
         $0.contentMode = .scaleAspectFit
-        $0.image = DesignSystemAsset.Images.icVerticalSwitchArrow.image
+        $0.image = DesignSystemAsset.Images.icVerticalSwitchArrorw.image
     }
     private let meLabel = WSLabel(wsFont: .Body09, text: "나").then {
         $0.textColor = DesignSystemAsset.Colors.gray100.color
@@ -180,7 +180,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
                    isBlocked: Bool = false,
                    isRead: Bool) {
 
-        self.redDot.isHidden = isRead
+        self.redDot.isHidden = !isRead
         self.myNameLabel.text = myNickname
         self.opponentNameLabel.text = opponentNickname
         if isFavorite {

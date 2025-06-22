@@ -100,6 +100,13 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     }
     
     private func bindAction(reactor: Reactor) {
+                
+        self.rx.viewWillAppear
+            .bind(onNext: {  _ in
+                reactor.action.onNext(.loadMessagesRoom)
+            })
+            .disposed(by: disposeBag)
+        
         favoriteMessageButton.rx.tap
             .bind(onNext: {
                 reactor.action.onNext(.favoriteMessageButtonTapped)
@@ -109,13 +116,6 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         allMessageButton.rx.tap
             .bind(onNext: {
                 reactor.action.onNext(.receivedMessageButtonTapped)
-            })
-            .disposed(by: disposeBag)
-        
-        self.rx.viewDidLoad
-            .bind(onNext: {  _ in
-                reactor.action.onNext(.loadMessages(type: String.MessageTexts.messageRecievedType))
-                reactor.action.onNext(.loadMessages(type: String.MessageTexts.messageSentType))
             })
             .disposed(by: disposeBag)
         
@@ -134,7 +134,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         
         favoriteMessageView.moreButtonTapped
             .bind(with: self, onNext: {  this, message in
-                this.showBottomSheet(with: message)
+                //this.showBottomSheet(with: message)
             })
             .disposed(by: disposeBag)
         
@@ -143,7 +143,6 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             .throttle(.seconds(1),
                       scheduler: MainScheduler.instance)
             .bind(onNext: {  _ in
-                reactor.action.onNext(.loadMoreMessages(type: String.MessageTexts.messageRecievedType))
             })
             .disposed(by: disposeBag)
         
@@ -152,7 +151,6 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             .throttle(.seconds(1),
                       scheduler: MainScheduler.instance)
             .bind(onNext: {  _ in
-                reactor.action.onNext(.loadMoreMessages(type: String.MessageTexts.messageSentType))
             })
             .disposed(by: disposeBag)
         
@@ -182,9 +180,10 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             }
             .disposed(by: disposeBag)
         
-        reactor.pulse(\.$recivedMessageList)
+        reactor.pulse(\.$roomList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
+                print("메시지 목록 업데이트: \(messages.count)개")
                 this.allMessageView.loadMessages(newMessages: messages)
             }
             .disposed(by: disposeBag)
@@ -192,17 +191,10 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         reactor.pulse(\.$favoriteMessageList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
-                this.favoriteMessageView.loadMessages(newMessages: messages)
+                //this.favoriteMessageView.loadMessages(newMessages: messages)
             }
             .disposed(by: disposeBag)
-        
-        reactor.pulse(\.$toastMessage)
-            .compactMap { $0 }
-            .observe(on: MainScheduler.instance)
-            .bind(with: self) {  this, message in
-                this.showToast(message: message)
-            }
-            .disposed(by: disposeBag)
+
     }
 }
 extension MessageStorageViewController {
@@ -211,15 +203,7 @@ extension MessageStorageViewController {
         favoriteMessageButton.updateTabStyle(isActive: tabState == .favorite)
     }
     
-    private func showToast(message: MessageContentModel) {
-        let vc = MessageContentToastViewController(to: message.reciverName, from: message.senderName, content: message.content)
-        vc.modalPresentationStyle = .overFullScreen
-        vc.modalTransitionStyle = .crossDissolve
-        self.present(vc, animated: true)
-        self.navigationController?.present(vc, animated: false)
-    }
-    
-    private func showBottomSheet(with message: MessageContentModel) {
+    private func showBottomSheet(with message: MessageRoomEntity) {
         guard let reactor = self.reactor else { return }
         
         let bottomSheetVC = DependencyContainer.shared.injector.resolve(

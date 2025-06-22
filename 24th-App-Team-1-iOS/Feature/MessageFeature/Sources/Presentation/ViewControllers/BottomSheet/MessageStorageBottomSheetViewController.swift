@@ -76,7 +76,6 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
     
     public  override func bind(reactor: Reactor) {
         super.bind(reactor: reactor)
-        buttonTableView.rx.setDelegate(self).disposed(by: disposeBag)
         bindAction(reactor: reactor)
         bindState(reactor: reactor)
         let items: [MessageBottomSheetButtonList] = [
@@ -102,9 +101,7 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
                 guard let message = this.message else {
                     return
                 }
-                this.showAlert(reacotr: reactor,
-                               message: message,
-                               type: item)
+
                 
             }
             .disposed(by: disposeBag)
@@ -174,18 +171,18 @@ extension MessageStorageBottomSheetViewController {
     }
 }
 
-extension MessageStorageBottomSheetViewController: UITableViewDelegate {
-    
-    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let totalRows = tableView.numberOfRows(inSection: indexPath.section)
-        if indexPath.row == totalRows - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.width, bottom: 0, right: 0)
-        } else {
-            cell.separatorInset = .zero
-        }
-    }
-    
-    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 56
-    }
-}
+//extension MessageStorageBottomSheetViewController: UITableViewDelegate {
+//    
+//    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        let totalRows = tableView.numberOfRows(inSection: indexPath.section)
+//        if indexPath.row == totalRows - 1 {
+//            cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.width, bottom: 0, right: 0)
+//        } else {
+//            cell.separatorInset = .zero
+//        }
+//    }
+//    
+//    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return 56
+//    }
+//}

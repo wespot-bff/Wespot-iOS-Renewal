@@ -13,19 +13,21 @@ public struct AnonymousProfileEntity {
     public let image: String
     public let recentlyTalk: String?
     public let myTurnToAnswer: Bool
+    public let isAnonymous: Bool
 
-    // ← 이 부분이 꼭 public 이어야 합니다
     public init(
         id: Int,
         name: String,
         image: String,
         recentlyTalk: String?,
-        myTurnToAnswer: Bool
+        myTurnToAnswer: Bool,
+        isAnonymous: Bool
     ) {
         self.id              = id
         self.name            = name
         self.image           = image
         self.recentlyTalk    = recentlyTalk
         self.myTurnToAnswer  = myTurnToAnswer
+        self.isAnonymous      = isAnonymous
     }
 }

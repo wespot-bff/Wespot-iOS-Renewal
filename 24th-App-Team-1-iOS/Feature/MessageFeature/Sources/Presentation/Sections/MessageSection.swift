@@ -11,17 +11,17 @@ import RxDataSources
 
 struct MessageSection {
     var header: String
-    var items: [MessageContentModel]
+    var items: [MessageRoomEntity]
 }
 
 extension MessageSection: AnimatableSectionModelType {
-    typealias Item = MessageContentModel
+    typealias Item = MessageRoomEntity
     
     var identity: String {
         return header
     }
     
-    init(original: MessageSection, items: [MessageContentModel]) {
+    init(original: MessageSection, items: [MessageRoomEntity]) {
         self = original
         self.items = items
     }

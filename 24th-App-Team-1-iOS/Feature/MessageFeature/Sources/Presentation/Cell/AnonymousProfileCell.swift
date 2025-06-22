@@ -28,8 +28,9 @@ final class AnonymousProfileCell: UITableViewCell {
     }
     
     func configureCell(_ info: AnonymousProfileEntity) {
+        let realName = info.isAnonymous ? "" : "(실명)"
         profileImageView.kf.setImage(with: URL(string: info.image))
-        nameLabel.text = info.name
+        nameLabel.text = info.name + realName
         dateLabel.text = info.recentlyTalk ?? ""
         nameLabel.sizeToFit()
     }
@@ -44,7 +45,7 @@ final class AnonymousProfileCell: UITableViewCell {
         
         profileImageView.snp.makeConstraints {
             $0.size.equalTo(34)
-            $0.leading.equalToSuperview().offset(20)
+            $0.leading.equalToSuperview()
             $0.centerY.equalToSuperview()
         }
         nameLabel.snp.makeConstraints {
@@ -52,7 +53,7 @@ final class AnonymousProfileCell: UITableViewCell {
             $0.centerY.equalToSuperview()
         }
         cheveronIcon.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(20)
+            $0.trailing.equalToSuperview()
             $0.centerY.equalToSuperview()
             $0.size.equalTo(24)
         }

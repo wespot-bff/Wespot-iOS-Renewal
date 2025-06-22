@@ -8,27 +8,27 @@
 import Foundation
 
 public enum AnonymousProfileStatusEnum {
-    case none
-    case OneOrTwo
+    case oneOrNone
+    case two
     case third
     case full
     
     public var totalHeight: CGFloat {
         switch self {
-        case .none:
+        case .oneOrNone:
             return 269
-        case .OneOrTwo:
-            return 323
+        case .two:
+            return 331
         case .full, .third:
-            return 381
+            return 393
         }
     }
     
     public var profileTableViewHeight: CGFloat {
         switch self {
-        case .none:
+        case .oneOrNone:
             return 34
-        case .OneOrTwo:
+        case .two:
             return 92
         case .third:
             return 158

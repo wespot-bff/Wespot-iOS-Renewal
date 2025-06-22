@@ -16,7 +16,7 @@ import RxSwift
 import RxCocoa
 
 final class MakeAnonymousProfilePopupViewController: BaseViewController<AnonymousProfileReactor> {
-    
+    public var onProfileCreated: ((_ name: String, _ imageUrl: String) -> Void)?
     private let contentView = UIView().then {
         $0.backgroundColor = DesignSystemAsset.Colors.gray600.color
         $0.layer.cornerRadius = 20
@@ -28,10 +28,13 @@ final class MakeAnonymousProfilePopupViewController: BaseViewController<Anonymou
     private let imageView = UIImageView().then {
         $0.backgroundColor = DesignSystemAsset.Colors.gray700.color
         $0.layer.cornerRadius = 43.3
+        $0.contentMode = .scaleAspectFit
+        $0.clipsToBounds = true
     }
     private let galleryButton = UIButton().then {
         $0.layer.cornerRadius = 12
         $0.backgroundColor = DesignSystemAsset.Colors.gray400.color
+        $0.setImage(DesignSystemAsset.Images.icPhoto.image, for: .normal)
     }
     private let dismissButton = UIButton().then {
         $0.setImage(DesignSystemAsset.Images.icXmark.image, for: .normal)
@@ -137,14 +140,39 @@ final class MakeAnonymousProfilePopupViewController: BaseViewController<Anonymou
     }
     
     private func bindState(reactor: Reactor) {
-
+        reactor.state
+            .map{$0.profileImage}
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
+            .bind(to: imageView.rx.image)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map {$0.userName}
+            .observe(on: MainScheduler.instance)
+            .bind(with:self) { this, name in
+                if name.count > 0 {
+                    this.makeProfileButton.isEnabled = true
+                } else {
+                    this.makeProfileButton.isEnabled = false
+                }
+                this.nameCountLabel.text = "\(name.count)/10"
+            }
+            .disposed(by: disposeBag)
     }
     
     private func bindAction(reactor: Reactor) {
+        nickNameTextField.rx.text.orEmpty
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(with: self) { this, text in
+                reactor.action.onNext(.inputUserName(text))
+            }
+            .disposed(by: disposeBag)
+        
         makeProfileButton.rx.tap
             .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
             .bind(with: self) { this, _ in
-                
+                this.onProfileCreated?(reactor.currentState.userName, reactor.currentState.profileImageURL)
+                this.presentingViewController?.presentingViewController?.dismiss(animated: true)
             }
             .disposed(by: disposeBag)
         
@@ -159,26 +187,8 @@ final class MakeAnonymousProfilePopupViewController: BaseViewController<Anonymou
             .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
             .bind(with: self) { this, _ in
                 print("갤러리 버튼 클릭")
-                let imagePicker = UIImagePickerController()
-                imagePicker.sourceType = .photoLibrary
-                imagePicker.delegate = this
-                this.present(imagePicker, animated: true)
+                reactor.action.onNext(.setImageTapped(self))
             }
             .disposed(by: disposeBag)
-    }
-}
-extension MakeAnonymousProfilePopupViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController,
-                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        // 선택된 이미지를 imageView에 설정
-        if let pickedImage = info[.originalImage] as? UIImage {
-            imageView.image = pickedImage
-        }
-        picker.dismiss(animated: true, completion: nil)
-    }
-
-    // 취소
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true, completion: nil)
     }
 }

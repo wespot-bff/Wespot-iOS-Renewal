@@ -98,7 +98,6 @@ public final class WSTextField: UITextField {
         layer.borderColor = UIColor.clear.cgColor
         layer.borderWidth = 1.0
         layer.cornerRadius = 12
-        textColor = DesignSystemAsset.Colors.gray100.color
         placeholder = placeholderText
         attributedPlaceholder = NSAttributedString(string: placeholderText, attributes: [NSAttributedString.Key.foregroundColor: DesignSystemAsset.Colors.gray400.color])
         backgroundColor = DesignSystemAsset.Colors.gray700.color

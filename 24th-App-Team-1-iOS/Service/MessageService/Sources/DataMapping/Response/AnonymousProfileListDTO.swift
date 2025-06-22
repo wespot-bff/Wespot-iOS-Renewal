@@ -14,6 +14,7 @@ struct AnonymousProfileListDTO: Decodable {
     let image: String
     let recentlyTalk: String?
     let myTurnToAnswer: Bool
+    let isAnonymous: Bool
 }
 extension AnonymousProfileListDTO {
     func toDomain() -> AnonymousProfileEntity {
@@ -21,6 +22,7 @@ extension AnonymousProfileListDTO {
                                       name: name,
                                       image: image,
                                       recentlyTalk: recentlyTalk,
-                                      myTurnToAnswer: myTurnToAnswer)
+                                      myTurnToAnswer: myTurnToAnswer,
+                                      isAnonymous: isAnonymous)
     }
 }

@@ -28,9 +28,12 @@ final class ReservedMessageCountView: UIView {
     
     /// 편지 이미지를 보여주는 이미지 뷰
     private var messageLottieView = WSLottieView().then {
-        $0.lottieView.animation = DesignSystemAnimationAsset.bgMessageOpenAnimate.animation
+        $0.lottieView.animation = DesignSystemAnimationAsset.bgMessageCloseAnimate.animation
         $0.isStatus = true
         $0.lottieView.loopMode = .playOnce
+    }
+    private let messageImageView = UIImageView().then {
+        $0.image = DesignSystemAsset.Images.threeMessageCount.image
     }
     private let pencilIconImage = UIImageView().then {
         $0.image = DesignSystemAsset.Images.icPencil.image
@@ -135,6 +138,7 @@ extension ReservedMessageCountView {
         
         self.addSubviews(titleLabel,
                          messageLottieView,
+                         messageImageView,
                          messageDesLabel,
                          countHoriznotalStackView,
                          timeHoriznotalStackView,
@@ -147,6 +151,11 @@ extension ReservedMessageCountView {
             $0.leading.equalToSuperview().offset(28)
         }
         messageLottieView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(20)
+            $0.height.equalTo(355)
+            $0.horizontalEdges.equalToSuperview()
+        }
+        messageImageView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
             $0.height.equalTo(355)
             $0.horizontalEdges.equalToSuperview()
@@ -186,7 +195,20 @@ extension ReservedMessageCountView {
     }
     
     func configure(count: Int, time: String) {
+        
+        switch count {
+        case 1:
+            self.messageImageView.image = DesignSystemAsset.Images.oneMessageCount.image
+        case 2:
+            self.messageImageView.image = DesignSystemAsset.Images.twoMessageCount.image
+        case 3:
+            self.messageImageView.image = DesignSystemAsset.Images.threeMessageCount.image
+            default:
+            break
+        }
         if count > 0 {
+            messageImageView.isHidden = false
+            messageLottieView.isHidden = true
             leftMessageCountLabel.text = "\(count)개"
             self.sendMessageButton.setupButton(text: String.MessageTexts.messageSendAvailableButtonText)
             messageDesLabel.text = String.MessageTexts.postableMessageCount
@@ -194,8 +216,9 @@ extension ReservedMessageCountView {
             self.sendMessageButton.isEnabled = true
             timeHoriznotalStackView.isHidden = true
             countHoriznotalStackView.isHidden = false
-        
         } else {
+            messageImageView.isHidden = true
+            messageLottieView.isHidden = false
             self.sendMessageButton.setupButton(text: String.MessageTexts.messageSendUnavailableButtonText)
             self.leftTimeMessageLabel.text = time
             self.sendMessageButton.isEnabled = false

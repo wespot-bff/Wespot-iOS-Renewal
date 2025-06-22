@@ -9,7 +9,6 @@ import Foundation
 
 public protocol AnonymousProfileUseCase {
     func getAnonymousProfileList(receiverId: Int) async throws -> [AnonymousProfileEntity]
-    func makeNewAnonymousProfile() async throws -> Bool
 }
 public final class AnonymousProfileUseCaseImpl: AnonymousProfileUseCase {
     
@@ -17,10 +16,6 @@ public final class AnonymousProfileUseCaseImpl: AnonymousProfileUseCase {
     
     public init(repository: MessageRepositoryProtocol) {
         self.repository = repository
-    }
-    
-    public func makeNewAnonymousProfile() async throws -> Bool {
-        return true
     }
     
     public func getAnonymousProfileList(receiverId: Int) async throws -> [AnonymousProfileEntity] {

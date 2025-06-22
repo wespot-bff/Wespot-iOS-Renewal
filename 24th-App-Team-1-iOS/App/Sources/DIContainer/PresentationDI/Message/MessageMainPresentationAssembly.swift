@@ -8,6 +8,7 @@
 import Foundation
 import MessageFeature
 import MessageDomain
+import CommonDomain
 
 import Swinject
 import UIKit
@@ -32,7 +33,7 @@ struct MessageHomePresentationAssembly: Assembly {
 
 struct MessageBottomSheetPresentationAssembly: Assembly {
     func assemble(container: Container) {
-        container.register(MessageStorageBottomSheetViewController.self) { (resolver: Resolver, message: MessageContentModel, reactor: MessageStorageReactor) in
+        container.register(MessageStorageBottomSheetViewController.self) { (resolver: Resolver, message: MessageRoomEntity, reactor: MessageStorageReactor) in
             return MessageStorageBottomSheetViewController(message: message).then {
                 $0.reactor = reactor
             }
@@ -46,7 +47,9 @@ struct AnonymousProfileBottomSheetAssembly: Assembly {
         // 1) Reactor 등록 (router는 일단 nil)
         container.register(AnonymousProfileReactor.self) { resolver in
             let usecase = resolver.resolve(AnonymousProfileUseCase.self)!
+            let  imageUrlUsecase = resolver.resolve(CreatePresigendURLUseCaseProtocol.self)!
             return AnonymousProfileReactor(usecase: usecase,
+                                           imageUrlUsecase: imageUrlUsecase,
                                            router: nil)
         }
         // Reactor 생성 완료 후 Router 주입
@@ -95,8 +98,17 @@ struct MessageWritePresentationAssembly: Assembly {
         container.register(MessageWriteReactor.self) { resolver in
             let fetchSearchResultUseCase = resolver.resolve(FetchStudentSearchResultUseCase.self)!
             let writeMessageUseCase =  resolver.resolve(WriteMessageUseCase.self)!
+            let bottomSheetRouter = resolver.resolve(AnonymousProfileBottomSheetRouting.self)!
+            let usecase = resolver.resolve(AnonymousProfileUseCase.self)!
             return MessageWriteReactor(fetchSearchResultUseCase: fetchSearchResultUseCase,
+                                       bottomSheetRouter: bottomSheetRouter,
+                                       anonmousProfileUseCase: usecase,
                                        writeMessageUseCase: writeMessageUseCase)
+        }
+        
+        container.register(MessageWriteViewController.self) { resolver in
+            let reactor = resolver.resolve(MessageWriteReactor.self)!
+            return MessageWriteViewController(reactor: reactor)
         }
         
         container.register(SearchStudentForMessageWriteViewController.self) { resolver in
@@ -151,3 +163,7 @@ struct MessageSettingAssembly: Assembly {
         }
     }
 }
+
+
+    
+    
