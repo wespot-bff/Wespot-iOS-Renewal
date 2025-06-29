@@ -290,7 +290,7 @@ extension MessageInfoInputViewController {
                 if complete {
                     this.navigationController?.popToRootViewController(animated: true)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        reactor.globalState.event.onNext(.showToast("전송 예약이 완료되었어요!", type: .check))
+                        reactor.globalState.event.onNext(.showToast("전송 완료!", type: .check))
                     }
                 } else {
                     this.navigationController?.popToRootViewController(animated: true)
