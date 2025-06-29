@@ -16,7 +16,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     
     private var disposeBag = DisposeBag()
     var onMoreButtonTap: (() -> Void)?
-    var onFavoriteButtonTap: (() -> Void)?
+    var unBlockButtonTap: (() -> Void)?
     var isFavorite: Bool = false
     private let redDot = UIView().then {
         $0.backgroundColor = UIColor(hex: "#FF4D4D")
@@ -76,7 +76,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         $0.titleLabel?.font = WSFont.Body09.font()
         $0.setTitleColor(DesignSystemAsset.Colors.gray100.color, for: .normal)
         $0.backgroundColor = DesignSystemAsset.Colors.gray500.color
-        $0.layer.cornerRadius = 18
+        $0.layer.cornerRadius = 16
     }
     
     private func layout() {
@@ -210,6 +210,12 @@ final class MessageCollectionViewCell: UICollectionViewCell {
             .bind { [weak self] in
                 guard let self = self else { return }
                 self.onMoreButtonTap?()
+            }
+            .disposed(by: disposeBag)
+        unBlockButton.rx.tap
+            .bind { [weak self] in
+                guard let self = self else { return }
+                self.unBlockButtonTap?()
             }
             .disposed(by: disposeBag)
     }

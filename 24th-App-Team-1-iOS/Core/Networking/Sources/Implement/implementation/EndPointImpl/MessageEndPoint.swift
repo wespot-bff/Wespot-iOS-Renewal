@@ -40,6 +40,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     case detailMessage(Int)
     
     case replyMessage(Int, Encodable)
+    
+    case fetchBlockMessageList
             
     
     public var spec: WSNetworkSpec {
@@ -80,6 +82,9 @@ public enum MessageEndPoint: WSNetworkEndPoint {
                                     url: "\(WSNetworkConfigure.baseURLV2)/messages/\(id)/details")
         case .replyMessage(let messageID, let query):
             return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/answer")
+        case .fetchBlockMessageList:
+            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURLV2)/messages/blocked")
+
         }
     }
     
@@ -114,6 +119,8 @@ public enum MessageEndPoint: WSNetworkEndPoint {
             return .none
         case .replyMessage(_, let body):
             return .requestBody(body)
+        case .fetchBlockMessageList:
+            return .none
         }
     }
     

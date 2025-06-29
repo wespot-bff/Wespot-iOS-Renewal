@@ -24,4 +24,5 @@ public protocol MessageRepositoryProtocol {
     func bookMarkMessage(messageId: Int) -> Single<Bool>
     func fetchDetailMessage(messageId: Int) -> Single<MessageRoomDetailEntity>
     func replyMessage(id: Int, content: String) -> RxSwift.Single<Bool>
+    func fetchBlockMessgeList() async throws -> [MessageRoomEntity]
 }

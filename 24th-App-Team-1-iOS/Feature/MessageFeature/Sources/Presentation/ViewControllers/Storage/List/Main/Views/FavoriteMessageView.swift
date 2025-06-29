@@ -61,9 +61,6 @@ final class FavoriteMessageView: UIView {
                     self?.moreButtonTapped.accept(item)
                 }
                 
-                cell.onFavoriteButtonTap = { [weak self] in
-                    self?.unFavoriteButtonTapped.accept(item)
-                }
                 return cell
             }
         )

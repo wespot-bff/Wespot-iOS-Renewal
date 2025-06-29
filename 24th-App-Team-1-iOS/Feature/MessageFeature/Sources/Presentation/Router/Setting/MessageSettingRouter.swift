@@ -8,13 +8,16 @@
 import UIKit
 
 import MessageDomain
+import MessageService
 
 public protocol MessageSettingRouting {
     func goToSetting(_ list: MessageDomain.MessageSettingListEnum, _ vc: UIViewController)
 }
 public class MessageSettingRouter: MessageSettingRouting {
     public func goToSetting(_ list: MessageDomain.MessageSettingListEnum, _ vc: UIViewController) {
-        let reactor = MessageSettingReactor(router: self)
+        let usecase = MessageSettingUsecaseImpl(repository: messageRepository())
+        let reactor = MessageSettingReactor(usecase: usecase,
+                                            router: self)
         switch list {
         case .blockList:
             let blockListVC = BlockMessageListViewContoller(reactor: reactor)

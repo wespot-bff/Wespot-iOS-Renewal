@@ -148,7 +148,10 @@ struct MessageSettingAssembly: Assembly {
         // MessageSettingReactor 등록 (문제 없어 보임)
         container.register(MessageSettingReactor.self) { resolver in
             let router = MessageSettingRouter()
-            return MessageSettingReactor(router: router)
+            let usecase = resolver.resolve(MessageSettingUsecase.self)!
+
+            return MessageSettingReactor(usecase: usecase,
+                                         router: router)
         }
         
         // MessageSettingViewController 등록 (문제 없어 보임)

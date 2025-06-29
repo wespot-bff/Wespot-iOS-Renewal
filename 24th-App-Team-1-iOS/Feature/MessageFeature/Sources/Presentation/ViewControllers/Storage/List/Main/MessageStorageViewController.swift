@@ -21,6 +21,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     
     //MARK: - Properties
     
+    private let globalState: WSGlobalServiceProtocol = WSGlobalStateService.shared
     private let allMessageButton = UIButton().then {
         $0.setTitle(String.MessageTexts.messageInventoryAllButton, for: .normal)
         $0.setImage(UIImage(systemName: "text.justify"), for: .normal)
@@ -215,6 +216,18 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             .bind(with: self) { this, messages in
                 print("favorite message list: \(messages)")
                 this.favoriteMessageView.loadMessages(newMessages: messages)
+            }
+            .disposed(by: disposeBag)
+        
+        globalState.event
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(with: self) {  this, type in
+                switch type {
+                case .showToast(let message, let type):
+                    this.showWSToast(image: type, message: message)
+                default:
+                    break
+                }
             }
             .disposed(by: disposeBag)
 

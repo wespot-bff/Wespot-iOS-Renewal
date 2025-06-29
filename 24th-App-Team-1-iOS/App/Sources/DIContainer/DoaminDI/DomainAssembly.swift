@@ -134,6 +134,11 @@ struct DomainAssembly: Assembly {
             return WriteMessageUseCaseImpl(repository: repository)
         }
         
+        container.register(MessageSettingUsecase.self) { resolver in
+            let repository = resolver.resolve(MessageRepositoryProtocol.self)!
+            return MessageSettingUsecaseImpl(repository: repository)
+        }
+        
         container.register(MessageStorageUseCase.self) { resolver in
             let repository = resolver.resolve(MessageRepositoryProtocol.self)!
             return MessageStorageUseCaseImpl(repository: repository)

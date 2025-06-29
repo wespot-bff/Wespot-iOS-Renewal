@@ -16,6 +16,13 @@ import RxCocoa
 
 public final class messageRepository: MessageRepositoryProtocol {
     
+    public func fetchBlockMessgeList() async throws -> [MessageRoomEntity] {
+        let endPoint = MessageEndPoint.fetchBlockMessageList
+        let data = try await networkService.requestAsync(endPoint: endPoint)
+        let dtoList = try JSONDecoder().decode([MessageRoomDTO].self, from: data)
+        return dtoList.map { $0.toDomain() }
+    }
+    
     public func fetchDetailMessage(messageId: Int) -> RxSwift.Single<MessageRoomDetailEntity> {
         let endPoint = MessageEndPoint.detailMessage(messageId)
         return networkService.request(endPoint: endPoint)

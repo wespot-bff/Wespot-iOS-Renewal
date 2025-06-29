@@ -63,12 +63,10 @@ final class AllMessageView: UIView {
                     self?.moreButtonTapped.accept(item)
                 }
                 
-                cell.onFavoriteButtonTap = { [weak self] in
-                    self?.favoriteButtonTapped.accept(item)
-                }
                 return cell
             }
         )
+        
         
         sectionsRelay
             .bind(to: messageCollectionView.rx.items(dataSource: dataSource))
