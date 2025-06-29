@@ -74,6 +74,14 @@ public final class MessagePageViewController: UIPageViewController,
                 owner.setViewController(index: index)
             }
             .disposed(by: disposeBag)
+        
+        messageHomeViewController.checkUnreadButtonTap
+            .bind(with: self) { owner, _ in
+                // 탭 이벤트가 발생하면, 두 번째 페이지(index: 1)로 이동하라는 액션을 reactor에 전달합니다.
+                // .updateViewController 액션은 이미 pageViewController(_:viewControllerAfter:)에서 사용하고 있으므로 재사용합니다.
+                owner.reactor?.action.onNext(.updateViewController(1))
+            }
+            .disposed(by: disposeBag)
     }
 }
 

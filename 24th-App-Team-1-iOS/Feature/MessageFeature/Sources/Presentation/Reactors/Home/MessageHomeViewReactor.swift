@@ -158,7 +158,7 @@ extension MessageHomeViewReactor {
                 print("fetchMessagesStatus error: \(error)")
             })
             .flatMap { entity -> Observable<Mutation> in
-                let messageCountState = entity.countUnReadMessages > 0
+                let messageCountState = entity.countUnReplayMessages > 0
                 print("Unread message count: \(entity.countUnReadMessages)")
                 return Observable.concat(
                     .just(.checkHaveMessage(messageCountState)),

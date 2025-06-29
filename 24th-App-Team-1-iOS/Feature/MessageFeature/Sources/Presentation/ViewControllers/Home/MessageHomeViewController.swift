@@ -24,7 +24,9 @@ public final class MessageHomeViewController: BaseViewController<MessageHomeView
         $0.axis = .vertical
         $0.backgroundColor = .clear
     }
-
+    public var checkUnreadButtonTap: ControlEvent<Void> {
+        return self.checkUnReadMessageButton.rx.tap
+    }
     private let checkUnReadMessageButton = CountUnReadMessageView()
     
     //MARK: - LifeCycle
@@ -133,6 +135,14 @@ extension MessageHomeViewController {
     }
     
     private func bindAction(reacotr: MessageHomeViewReactor) {
+        
+        checkUnReadMessageButton.rx
+            .tap
+            .bind(with: self) { this, _ in
+                
+            }
+            .disposed(by: disposeBag)
+        
         reacotr.action.onNext(.viewWillAppear)
         self.rx.viewWillAppear
             .bind { _ in
