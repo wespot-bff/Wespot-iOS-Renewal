@@ -40,7 +40,7 @@ public final class AnonymousProfileReactor: Reactor {
     
     public enum Action {
         case inputUserName(String)
-        case presentMakeProfilePopup(vc: UIViewController, onProfileCreated: (String, String) -> Void)
+        case presentMakeProfilePopup(vc: UIViewController, onProfileCreated: (String, String, Bool) -> Void)
         case selectedProfile
         case fetchProfileList
         case setImageTapped(UIViewController)

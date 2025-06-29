@@ -33,10 +33,8 @@ struct MessageHomePresentationAssembly: Assembly {
 
 struct MessageBottomSheetPresentationAssembly: Assembly {
     func assemble(container: Container) {
-        container.register(MessageStorageBottomSheetViewController.self) { (resolver: Resolver, message: MessageRoomEntity, reactor: MessageStorageReactor) in
-            return MessageStorageBottomSheetViewController(message: message).then {
-                $0.reactor = reactor
-            }
+        container.register(MessageStorageBottomSheetViewController.self) { (resolver: Resolver, message: MessageRoomEntity, isFavorite: Bool, reactor: MessageStorageReactor) in
+            return MessageStorageBottomSheetViewController(message: message, isFavorite: isFavorite, reactor: reactor)
         }
     }
 }
@@ -79,11 +77,8 @@ struct MessageStroagePresentationAssembly: Assembly {
     func assemble(container: Container) {
         container.register(MessageStorageReactor.self) { resolver in
             let messageStroageUsecase =  resolver.resolve(MessageStorageUseCase.self)!
-            let bottomSheetRouter = resolver.resolve(AnonymousProfileBottomSheetRouting.self)!
-            let usecase = resolver.resolve(AnonymousProfileUseCase.self)!
-            return MessageStorageReactor(usecase: messageStroageUsecase,
-                                         anonmousProfileUseCase: usecase,
-                                         bottomSheetRouter: bottomSheetRouter)
+            let router = MessageStorageRouter()
+            return MessageStorageReactor(usecase: messageStroageUsecase, router: router)
         }
         
         container.register(MessageStorageViewController.self) { resolver in
@@ -131,6 +126,7 @@ struct MessagePagePresentationAssembly: Assembly {
         }
     }
 }
+
 
 struct MessageMainPresentationAssembly: Assembly {
         func assemble(container: Container) {

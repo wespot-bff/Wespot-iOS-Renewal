@@ -20,6 +20,7 @@ public final class WSTextView: UITextView {
         case `default`
         case withLeftItem(UIImage)
         case withRightItem(UIImage)
+        case detailMessage
         
         var padding: UIEdgeInsets {
             switch self {
@@ -29,6 +30,9 @@ public final class WSTextView: UITextView {
                 return .init(top: 18, left: 59, bottom: 18, right: 18)
             case .withRightItem:
                 return .init(top: 18, left: 20, bottom: 18, right: 48)
+            case .detailMessage:
+                return .init(top: 24, left: 0, bottom: 3, right: 0)
+
             }
         }
     }

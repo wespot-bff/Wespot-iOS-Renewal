@@ -9,12 +9,16 @@ import RxSwift
 
 public protocol MessageStorageUseCase {
     func getMessage() -> Single<[MessageRoomEntity]>
-    func readMessage(messageId: Int) -> Single<Bool>
+    func bookMark(messageId: Int) -> Single<Bool>
     func deleteMessage(messageId: Int) -> Single<Bool>
     func reportMessage(messageId: Int, content: String) -> Single<Bool>
     func blockMessage(messageId: Int) -> Single<Bool>
+    func getDetailMessage(messageId: Int) -> Single<MessageRoomDetailEntity>
 }
 public final class MessageStorageUseCaseImpl: MessageStorageUseCase {
+    public func getDetailMessage(messageId: Int) -> RxSwift.Single<MessageRoomDetailEntity> {
+        return repository.fetchDetailMessage(messageId: messageId)
+    }
     
 
     private let repository: MessageRepositoryProtocol
@@ -27,12 +31,12 @@ public final class MessageStorageUseCaseImpl: MessageStorageUseCase {
         return repository.getMessage()
     }
     
-    public func readMessage(messageId: Int) -> RxSwift.Single<Bool> {
-        return repository.readMessage(messageId: messageId)
-    }
-    
     public func deleteMessage(messageId: Int) -> RxSwift.Single<Bool> {
         return repository.deleteMessage(messageId: messageId)
+    }
+    
+    public func bookMark(messageId: Int) -> RxSwift.Single<Bool> {
+        return repository.bookMarkMessage(messageId: messageId)
     }
     
     public func reportMessage(messageId: Int, content: String) -> Single<Bool>{

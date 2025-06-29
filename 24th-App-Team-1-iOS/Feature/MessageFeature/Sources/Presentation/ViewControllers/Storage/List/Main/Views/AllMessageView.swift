@@ -52,11 +52,13 @@ final class AllMessageView: UIView {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String.MessageTexts.Identifier.messageCollectionViewCell, for: indexPath) as! MessageCollectionViewCell
                 cell.configure(myNickname: item.senderProfile.name,
                                opponentNickname: item.receiverProfile.name,
+                               myImaURL: item.senderProfile.iconUrl,
+                               opponentImageURL: item.receiverProfile.iconUrl,
                                date: item.latestChatTime,
                                isFavorite: item.isBookmarked,
                                isAnonymous: item.senderProfile.isAnonymous,
-                               isBlocked: item.isBlocked,
                                isRead: item.isExistsUnreadMessage)
+
                 cell.onMoreButtonTap = { [weak self] in
                     self?.moreButtonTapped.accept(item)
                 }

@@ -23,17 +23,30 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
     
     private let allMessageButton = UIButton().then {
         $0.setTitle(String.MessageTexts.messageInventoryAllButton, for: .normal)
-        $0.setImage(DesignSystemAsset.Images.icTabbarAllUnselected.image, for: .normal)
-        $0.imageView?.contentMode = .scaleAspectFit
+        $0.setImage(UIImage(systemName: "text.justify"), for: .normal)
+        $0.imageView?.contentMode = .scaleAspectFit // 이미지의 비율을 유지하며 공간에 맞춤
         $0.titleLabel?.font = WSFont.Body05.font()
-        $0.layer.cornerRadius = 4
+        $0.layer.cornerRadius = 12
+        
+        $0.imageView?.snp.makeConstraints { make in
+            make.size.equalTo(18)
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().offset(12)
+        }
     }
+
     private let favoriteMessageButton = UIButton().then {
         $0.setTitle(String.MessageTexts.messageInventoryFavoriteButton, for: .normal)
         $0.setImage(DesignSystemAsset.Images.icStarFill.image, for: .normal)
         $0.imageView?.contentMode = .scaleAspectFit
         $0.titleLabel?.font = WSFont.Body05.font()
-        $0.layer.cornerRadius = 4
+        $0.layer.cornerRadius = 12
+        
+        $0.imageView?.snp.makeConstraints { make in
+            make.size.equalTo(18)
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().offset(12)
+        }
     }
     private let allMessageView = AllMessageView()
     private let favoriteMessageView = FavoriteMessageView()
@@ -52,6 +65,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
                               favoriteMessageButton,
                               favoriteMessageView,
                               allMessageView)
+        allMessageButton.updateTabStyle(isActive: true)
     }
     
     public override func setupAutoLayout() {
@@ -67,7 +81,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         favoriteMessageButton.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(6)
             $0.leading.equalTo(allMessageButton.snp.trailing).offset(12)
-            $0.width.equalTo(76)
+            $0.width.equalTo(95)
             $0.height.equalTo(31)
         }
         
@@ -122,19 +136,26 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         allMessageView
             .didSelectMessage
             .bind(onNext: {  message in
-                reactor.action.onNext(.presentBottomSheet(self, 0))
+                reactor.action.onNext(.goToMessageRoom(message, self))
+            })
+            .disposed(by: disposeBag)
+        
+        favoriteMessageView
+            .didSelectMessage
+            .bind(onNext: {  message in
+                reactor.action.onNext(.goToMessageRoom(message, self))
             })
             .disposed(by: disposeBag)
         
         allMessageView.moreButtonTapped
             .bind(with: self, onNext: {  this, message in
-                this.showBottomSheet(with: message)
+                this.showBottomSheet(with: message, message.isBookmarked)
             })
             .disposed(by: disposeBag)
         
         favoriteMessageView.moreButtonTapped
             .bind(with: self, onNext: {  this, message in
-                //this.showBottomSheet(with: message)
+                this.showBottomSheet(with: message, message.isBookmarked)
             })
             .disposed(by: disposeBag)
         
@@ -143,6 +164,7 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             .throttle(.seconds(1),
                       scheduler: MainScheduler.instance)
             .bind(onNext: {  _ in
+                
             })
             .disposed(by: disposeBag)
         
@@ -151,12 +173,13 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
             .throttle(.seconds(1),
                       scheduler: MainScheduler.instance)
             .bind(onNext: {  _ in
+                
             })
             .disposed(by: disposeBag)
         
         favoriteMessageView.unFavoriteButtonTapped
             .bind(onNext: {  message in
-                
+                reactor.action.onNext(.unBookMarked(message))
             })
             .disposed(by: disposeBag)
     }
@@ -183,7 +206,6 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         reactor.pulse(\.$roomList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
-                print("메시지 목록 업데이트: \(messages.count)개")
                 this.allMessageView.loadMessages(newMessages: messages)
             }
             .disposed(by: disposeBag)
@@ -191,7 +213,8 @@ public final class MessageStorageViewController: BaseViewController<MessageStora
         reactor.pulse(\.$favoriteMessageList)
             .filter{ $0.count > 0 }
             .bind(with: self) { this, messages in
-                //this.favoriteMessageView.loadMessages(newMessages: messages)
+                print("favorite message list: \(messages)")
+                this.favoriteMessageView.loadMessages(newMessages: messages)
             }
             .disposed(by: disposeBag)
 
@@ -203,19 +226,19 @@ extension MessageStorageViewController {
         favoriteMessageButton.updateTabStyle(isActive: tabState == .favorite)
     }
     
-    private func showBottomSheet(with message: MessageRoomEntity) {
+    private func showBottomSheet(with message: MessageRoomEntity, _ isBookMarked: Bool) {
         guard let reactor = self.reactor else { return }
         
         let bottomSheetVC = DependencyContainer.shared.injector.resolve(
             MessageStorageBottomSheetViewController.self,
-            arguments: message, reactor
+            arguments: message, isBookMarked, reactor
         )
         
         bottomSheetVC.modalPresentationStyle = .pageSheet
         if let sheet = bottomSheetVC.sheetPresentationController {
             if #available(iOS 16.0, *) {
                 sheet.detents = [
-                    .custom { _ in return 212 }
+                    .custom { _ in return 156 }
                 ]
                 sheet.preferredCornerRadius = 25
             }

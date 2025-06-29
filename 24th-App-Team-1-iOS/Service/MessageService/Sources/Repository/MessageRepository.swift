@@ -16,6 +16,24 @@ import RxCocoa
 
 public final class messageRepository: MessageRepositoryProtocol {
     
+    public func fetchDetailMessage(messageId: Int) -> RxSwift.Single<MessageRoomDetailEntity> {
+        let endPoint = MessageEndPoint.detailMessage(messageId)
+        return networkService.request(endPoint: endPoint)
+            .asObservable()
+            .logErrorIfDetected(category: Network.error)
+            .decodeMap(DetailMessageResponseDTO.self)
+            .map { $0.toDomain() }
+            .asSingle()
+    }
+    
+    public func bookMarkMessage(messageId: Int) -> RxSwift.Single<Bool> {
+        let endPoint = MessageEndPoint.bookMark(messageId)
+        return networkService.request(endPoint: endPoint)
+            .asObservable()
+            .logErrorIfDetected(category: Network.error)
+            .map { _ in true }
+            .asSingle()
+    }
     
     public func fetchAnonymousProfileList(receiverId: Int) async throws -> [AnonymousProfileEntity] {
         let endPoint = MessageEndPoint.fetchAnonymousProfileList(receiverId)
@@ -26,6 +44,15 @@ public final class messageRepository: MessageRepositoryProtocol {
     
     public func blockMessage(messageId: Int) -> RxSwift.Single<Bool> {
         let endPoint = MessageEndPoint.blockMessage(messageId)
+        return networkService.request(endPoint: endPoint)
+            .asObservable()
+            .logErrorIfDetected(category: Network.error)
+            .map { _ in true }
+            .asSingle()
+    }
+    
+    public func readMessage(messageId: Int) -> RxSwift.Single<Bool> {
+        let endPoint = MessageEndPoint.bookMark(messageId)
         return networkService.request(endPoint: endPoint)
             .asObservable()
             .logErrorIfDetected(category: Network.error)
@@ -69,13 +96,17 @@ public final class messageRepository: MessageRepositoryProtocol {
             }
     }
     
-    public func readMessage(messageId: Int) -> Single<Bool> {
-        let endPoint = MessageEndPoint.readMessage(messageId)
-        return networkService.request(endPoint: endPoint)
-            .asObservable()
-            .logErrorIfDetected(category: Network.error)
-            .map { _ in true }
-            .asSingle()
+    public func replyMessage(id: Int, content: String) -> RxSwift.Single<Bool> {
+        let query = ReplyMessageRequestDTO(content: content)
+        let endPoint = MessageEndPoint.replyMessage(id, query)
+        return networkService.requestWithStatusCode(endPoint: endPoint)
+            .flatMap { response -> Single<Bool> in
+                if response.statusCode == 201 {
+                    return Single.just(true)
+                } else  {
+                    return Single.just(false)
+                }
+            }
     }
     
     public func reportMessage(query: ReportMessageRequest) -> Single<Bool> {
@@ -87,7 +118,6 @@ public final class messageRepository: MessageRepositoryProtocol {
             .map { _ in true }
             .asSingle()
     }
-    
     
     public func checkProfanity(message: String) -> Single<Bool> {
         let query = CheckProfanityRequestDTO(message: message)

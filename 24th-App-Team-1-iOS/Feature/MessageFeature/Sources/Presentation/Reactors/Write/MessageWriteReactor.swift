@@ -19,8 +19,8 @@ public final class MessageWriteReactor: Reactor {
     
     private let fetchSearchResultUseCase: FetchStudentSearchResultUseCase
     private let writeMessageUseCase: WriteMessageUseCase
-    private let bottomSheetRouter: AnonymousProfileBottomSheetRouting
-    private let anonmousProfileUseCase: AnonymousProfileUseCase
+    private let bottomSheetRouter: AnonymousProfileBottomSheetRouting?
+    private let anonmousProfileUseCase: AnonymousProfileUseCase?
 
     // MARK: - Properties
     
@@ -43,8 +43,15 @@ public final class MessageWriteReactor: Reactor {
         var isAnonymous: Bool = false
         @Pulse var completeSendMessage: Bool = false
         @Pulse var anonymousProfileStatus: AnonymousProfileStatusEnum = .oneOrNone
+        @Pulse var successDelete: Bool?
         var profileImageURL: String = ""
         var userName: String = ""
+        
+        var isReply: Bool = false
+        
+        var replyMessage: MessageRoomEntity?
+        @Pulse var meesageRoom: MessageRoomEntity?
+        var detailMessage: MessageDetailEntity?
     }
     
     public enum Action {
@@ -56,6 +63,12 @@ public final class MessageWriteReactor: Reactor {
         case presentAnonymousBottomSheet(Int, UIViewController)
         case setAnonymousProfile(name: String, imageUrl: String)
         case anonymousProfileCreationCompleted
+        case setMessageRoom(MessageRoomEntity)
+        
+        case setndReplyMessgaeTapped
+        case setReplyMessage(MessageRoomEntity)
+        case tappedMessage(MessageDetailEntity)
+        case deleteMessage(MessageDetailEntity)
     }
 
     public enum Mutation {
@@ -72,13 +85,18 @@ public final class MessageWriteReactor: Reactor {
         case setBottomSheet(AnonymousProfileStatusEnum)
         case setAnonymousProfile(name: String, imageUrl: String)
         case completeSenderProfileSetup(Bool)
+        case setRoom(MessageRoomEntity)
+        case setDetailMessage(MessageDetailEntity)
+        case setDeleeteMessage(Bool)
+        case setReplyMessage(MessageRoomEntity)
+        case replyMessage(Bool)
     }
     
     // MARK: - Init
     
     public init(fetchSearchResultUseCase: FetchStudentSearchResultUseCase,
-                bottomSheetRouter: AnonymousProfileBottomSheetRouting,
-                anonmousProfileUseCase: AnonymousProfileUseCase,
+                bottomSheetRouter: AnonymousProfileBottomSheetRouting?,
+                anonmousProfileUseCase: AnonymousProfileUseCase?,
                 writeMessageUseCase: WriteMessageUseCase) {
         self.anonmousProfileUseCase = anonmousProfileUseCase
         self.writeMessageUseCase = writeMessageUseCase
@@ -140,7 +158,7 @@ extension MessageWriteReactor {
                 .flatMap { statusMutation -> Observable<Mutation> in
                     guard case let .setBottomSheet(status) = statusMutation else { return .empty() }
                     
-                    self.bottomSheetRouter.presentAnonymousProfileBottomSheet(status, vc: vc, onProfileCreated: { name, imageUrl in
+                    self.bottomSheetRouter?.presentAnonymousProfileBottomSheet(status, vc: vc, onProfileCreated: { name, imageUrl, isAnonymous in
                         print("Anonymous Profile Created: \(name), \(imageUrl)")
                         self.globalState.event.onNext(.setAnonymousProfileData(name: name, imageUrl: imageUrl))
                         self.globalState.event.onNext(.anonymousProfileSetupComplete)
@@ -154,6 +172,31 @@ extension MessageWriteReactor {
             
         case .anonymousProfileCreationCompleted:
             return .just(.completeSenderProfileSetup(true))
+        case .setMessageRoom(let room):
+            return .just(.setRoom(room))
+        case .tappedMessage(let message):
+            return .just(.setDetailMessage(message))
+        case .deleteMessage(let message):
+            return writeMessageUseCase.deleteMessage(messageId: message.id)
+                .asObservable()
+                .flatMap { result -> Observable<Mutation> in
+                    if result {
+                        return .just(.setDeleeteMessage(true))
+                    } else {
+                        return .just(.setDeleeteMessage(false))
+                    }
+                }
+  
+        case .setReplyMessage(let message):
+            return Observable.just(.setReplyMessage(message))
+        case .setndReplyMessgaeTapped:
+            return writeMessageUseCase.replyMessage(id: currentState.replyMessage?.id ?? 0,
+                                                    content: currentState.message)
+                .asObservable()
+                .flatMap {  result -> Observable<Mutation> in
+                    return Observable.just(Mutation.replyMessage(result))
+                    
+                }
         }
     }
     
@@ -203,6 +246,24 @@ extension MessageWriteReactor {
             
         case .completeSenderProfileSetup(let completed):
             newState.completSetSenderProfile = completed
+            newState.isReply = false
+
+            
+        case .setRoom(let room):
+            newState.meesageRoom = room
+            newState.userName = room.senderProfile.name
+            newState.profileImageURL = room.senderProfile.iconUrl
+
+        case .setDetailMessage(let message):
+            newState.detailMessage = message
+        case .setDeleeteMessage(let success):
+            newState.successDelete = success
+        case .setReplyMessage(let info):
+            newState.isReply = true
+            newState.replyMessage = info
+
+        case .replyMessage(let result):
+            newState.completeSendMessage = result
         }
         return newState
     }
@@ -283,13 +344,13 @@ extension MessageWriteReactor {
             }
             Task {
                 do {
-                    let entity = try await self.anonmousProfileUseCase.getAnonymousProfileList(receiverId: receiverId)
+                    let entity = try await self.anonmousProfileUseCase?.getAnonymousProfileList(receiverId: receiverId)
                     var status: AnonymousProfileStatusEnum
-                    if entity.count == 0 || entity.count == 1 {
+                    if entity?.count == 0 || entity?.count == 1 {
                         status = .oneOrNone
-                    } else if entity.count == 2 {
+                    } else if entity?.count == 2 {
                         status = .two
-                    } else if entity.count == 3 {
+                    } else if entity?.count == 3 {
                         status = .third
                     } else {
                         status = .full

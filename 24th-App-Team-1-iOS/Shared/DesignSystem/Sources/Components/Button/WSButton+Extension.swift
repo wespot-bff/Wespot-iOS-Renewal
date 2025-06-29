@@ -18,6 +18,7 @@ extension UIButton {
             self.backgroundColor = WSButtonType.tab.buttonProperties.backgroundColor.color
             self.setTitleColor(WSButtonType.tab.buttonProperties.textColor, for: .normal)
             self.layer.borderColor = WSButtonType.tab.buttonProperties.borderColor
+            self.layer.borderWidth = 1
         }
     }
 }

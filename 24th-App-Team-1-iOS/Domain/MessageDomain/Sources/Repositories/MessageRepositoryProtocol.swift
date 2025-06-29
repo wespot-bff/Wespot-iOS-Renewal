@@ -18,8 +18,10 @@ public protocol MessageRepositoryProtocol {
     func checkProfanity(message: String) -> Single<Bool>
     func sendMessage(query: SendMessageRequest) -> RxSwift.Single<Bool>
     func getMessage() -> Single<[MessageRoomEntity]>
-    func readMessage(messageId: Int) -> Single<Bool>
     func deleteMessage(messageId: Int) -> Single<Bool>
     func reportMessage(query: ReportMessageRequest) -> Single<Bool>
     func blockMessage(messageId: Int) -> RxSwift.Single<Bool>
+    func bookMarkMessage(messageId: Int) -> Single<Bool>
+    func fetchDetailMessage(messageId: Int) -> Single<MessageRoomDetailEntity>
+    func replyMessage(id: Int, content: String) -> RxSwift.Single<Bool>
 }

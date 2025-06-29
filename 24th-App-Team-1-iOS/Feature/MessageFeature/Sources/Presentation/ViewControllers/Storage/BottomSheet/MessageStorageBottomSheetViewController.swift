@@ -5,6 +5,7 @@
 //  Created by 최지철 on 1/15/25.
 //
 
+
 import UIKit
 import Util
 import DesignSystem
@@ -18,7 +19,7 @@ import RxDataSources
 import ReactorKit
 
 public final class MessageStorageBottomSheetViewController: BaseViewController<MessageStorageReactor> {
-    
+
     //MARK: - Properties
     
     private var message: MessageRoomEntity?
@@ -27,18 +28,25 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
                     forCellReuseIdentifier: String.MessageTexts.Identifier.MessageBottomSheetTabelViewCell)
         $0.isScrollEnabled = false
     }
+    private var items: [MessageBottomSheetButtonList] = []
     
     //MARK: - LifeCycle
     
+    // Reactor를 주입받도록 init을 수정해야 합니다 (이전 답변에서 제안된 내용).
     public override init() {
         super.init()
     }
     
-    public convenience init(message: MessageRoomEntity) {
-        self.init()
+    // 이전 답변에서 제안된 convenience init (reactor 파라미터 포함)
+    public convenience init(message: MessageRoomEntity, isFavorite: Bool, reactor: MessageStorageReactor) {
+        
+        self.init(reactor: reactor) // BaseViewController에 init(reactor:)가 있다고 가정
         self.message = message
+        if let message = self.message {
+             reactor.action.onNext(.setBottomSheetButtonList(message))
+         }
     }
-    
+
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -46,8 +54,6 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = DesignSystemAsset.Colors.gray600.color
-        self.buttonTableView.rx.setDelegate(self)
-            .disposed(by: disposeBag)
     }
     
     //MARK: - Functions
@@ -75,119 +81,41 @@ public final class MessageStorageBottomSheetViewController: BaseViewController<M
         }
     }
     
-    public  override func bind(reactor: Reactor) {
+    public override func bind(reactor: Reactor) {
         super.bind(reactor: reactor)
-        buttonTableView.rx.setDelegate(self).disposed(by: disposeBag)
+        buttonTableView.rx.setDelegate(self).disposed(by: disposeBag) // 이 부분은 그대로 둡니다.
+        
         bindAction(reactor: reactor)
         bindState(reactor: reactor)
-        let items: [MessageBottomSheetButtonList] = [
-             .block,
-             .delete,
-             .report
-         ]
-         
-         Observable.just(items)
-             .bind(to: buttonTableView.rx.items(
-                cellIdentifier: String.MessageTexts.Identifier.MessageBottomSheetTabelViewCell,
-                 cellType: MessageBottomSheetTabelViewCell.self
-             )) { row, element, cell in
-                 cell.configureCell(text: element.titleText)
-             }
-             .disposed(by: disposeBag)
     }
     
     private func bindAction(reactor: Reactor) {
-        buttonTableView.rx
-            .modelSelected(MessageBottomSheetButtonList.self)
-            .bind(with: self){ this, item in
-                guard let message = this.message else {
-                    return
+        buttonTableView.rx.modelSelected(MessageBottomSheetButtonList.self)
+            .observe(on: MainScheduler.instance)
+            .bind(with: self) { owner, item in
+                switch item {
+                case .block:
+                    reactor.action.onNext(.blockMessage(self.message!))
+                case .unFavorite:
+                    reactor.action.onNext(.bookMarked(self.message!))
+                case .favorite:
+                    reactor.action.onNext(.bookMarked(self.message!))
                 }
-                this.showAlert(reacotr: reactor,
-                               message: message,
-                               type: item)
-                
+                self.dismiss(animated: true, completion: nil)
             }
             .disposed(by: disposeBag)
+            
     }
     
     private func bindState(reactor: Reactor) {
-        reactor.pulse(\.$disMissBottomSheet)
-            .bind(with: self, onNext: {  this, state in
-                if state {
-                    this.dismiss(animated: true)
-                }
-            })
+        reactor.pulse(\.$bottomSheetButtonList) // @Pulse로 변경했으므로 pulse 사용
+            .bind(to: buttonTableView.rx.items(
+                cellIdentifier: String.MessageTexts.Identifier.MessageBottomSheetTabelViewCell,
+                cellType: MessageBottomSheetTabelViewCell.self
+            )) { row, element, cell in
+                cell.configureCell(text: element.titleText)
+            }
             .disposed(by: disposeBag)
     }
 }
 
-extension MessageStorageBottomSheetViewController {
-    private func showAlert(reacotr: MessageStorageReactor,
-                           message: MessageRoomEntity,
-                           type: MessageBottomSheetButtonList) {
-        var title: String = ""
-        var description: String = ""
-        var buttonText: String = ""
-        let cloeseButtonText: String = "닫기"
-        switch type {
-        case .block:
-            title = String.MessageTexts.blockMessageAlertTitle
-            description = String.MessageTexts.blockMessageAlertDes
-            buttonText = String.MessageTexts.blockMessageBtnTitle
-        case .delete:
-            title = String.MessageTexts.deleteMessageAlertTitle
-            description = String.MessageTexts.deleteMessageAlertDes
-            buttonText = String.MessageTexts.deleteMessageBtnTitle
-        case .report:
-            title = String.MessageTexts.reportMessageAlertTitle
-            description = String.MessageTexts.reportMessageAlertDes
-            buttonText = String.MessageTexts.reportMessageBtnTitle
-        }
-        
-        WSAlertBuilder(showViewController: self)
-            .setAlertType(type: .titleWithMeesage)
-            .setTitle(title: title,
-                      titleAlignment: .left)
-            .setMessage(message: description)
-            .setConfirm(text: buttonText)
-            .setCancel(text: cloeseButtonText)
-            .action(.confirm) {
-                reacotr.action.onNext(.buttonTapped(message, type))
-                if type == .report {
-                    let reactor = DependencyContainer.shared.injector.resolve(MessageStorageReactor.self)
-                    let reportVC = DependencyContainer.shared.injector.resolve(
-                        MesssageReportViewController.self,
-                        arguments: message, reactor
-                    )
-                    
-                    // 3. 화면 전환
-                    reportVC.onDismiss = { [weak self] in
-                        self?.dismiss(animated: true)
-                    }
-                    reportVC.modalPresentationStyle = .fullScreen
-                    self.present(reportVC, animated: false)
-                    
-                
-                }
-            }
-            .show()
-    }
-}
-
-
-//extension MessageStorageBottomSheetViewController: UITableViewDelegate {
-//    
-//    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        let totalRows = tableView.numberOfRows(inSection: indexPath.section)
-//        if indexPath.row == totalRows - 1 {
-//            cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.width, bottom: 0, right: 0)
-//        } else {
-//            cell.separatorInset = .zero
-//        }
-//    }
-//    
-//    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return 56
-//    }
-//}

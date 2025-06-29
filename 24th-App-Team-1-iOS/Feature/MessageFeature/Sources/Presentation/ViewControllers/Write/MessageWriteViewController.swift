@@ -163,8 +163,15 @@ extension MessageWriteViewController {
         
         postButton.rx.tap
             .bind(with: self) {  this, _ in
-                let vc = MessageInfoInputViewController(reactor: reactor)
-                this.navigationController?.pushViewController(vc, animated: true)
+                
+                if this.reactor!.currentState.isReply {
+                    let vc = MessageReplyInfoViewController(reactor: reactor)
+                    this.navigationController?.pushViewController(vc, animated: true)
+                } else {
+                    let vc = MessageInfoInputViewController(reactor: reactor)
+                    this.navigationController?.pushViewController(vc, animated: true)
+                }
+
             }
             .disposed(by: disposeBag)
     }

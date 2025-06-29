@@ -10,6 +10,7 @@ import MessageDomain
 
 public struct MessagesStatusResponseDTO: Decodable {
     public let isSendAllowed: Bool
+    public let isReceivedAllowed: Bool
     public let countRemainingMessages: Int
     public let countUnReadMessages: Int
 }
@@ -17,6 +18,7 @@ public struct MessagesStatusResponseDTO: Decodable {
 extension MessagesStatusResponseDTO {
     func toDomain() -> MessageStatusResponseEntity {
         return .init(isSendAllowed: isSendAllowed,
+                     isReceivedAllowed: isReceivedAllowed,
                      remainingMessages: countRemainingMessages,
                      countUnReadMessages: countUnReadMessages)
     }

@@ -51,7 +51,7 @@ final class DetailMessageCustomNaviBar: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        addSubviews(nameLabel, userImageView, nameInfoStack)
+        addSubviews(nameLabel, userImageView, nameInfoStack, backButton)
         layoutUI()
     }
 
@@ -62,6 +62,12 @@ final class DetailMessageCustomNaviBar: UIView {
     // MARK: - Layout
 
     private func layoutUI() {
+        
+        backButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(20)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(40)
+        }
         userImageView.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.size.equalTo(30)
@@ -74,8 +80,7 @@ final class DetailMessageCustomNaviBar: UIView {
 
         nameInfoStack.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.leading.equalTo(nameLabel.snp.trailing).offset(8)
-            // 높이는 고정, 너비는 스택뷰 내용물에 맞춰 자동
+            $0.trailing.equalTo(userImageView.snp.leading).offset(-8)
             $0.height.equalTo(20)
         }
     }
@@ -84,10 +89,10 @@ final class DetailMessageCustomNaviBar: UIView {
 
     func configureNavi(name: String,
                       isAnonymous: Bool,
-                      imageUrl: String,
+                      imageUrl: URL,
                       isBookmarked: Bool) {
         nameLabel.text = name
-        userImageView.image = UIImage(named: imageUrl)
+        userImageView.kf.setImage(with: imageUrl, placeholder: DesignSystemAsset.Images.icBasicProfile.image)
         bookMarkImg.isHidden = !isBookmarked
         nameStateLabel.text = isAnonymous ? "익명" : "실명"
     }

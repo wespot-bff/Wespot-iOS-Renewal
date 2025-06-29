@@ -16,7 +16,7 @@ public struct MessageRoomEntity {
     public let isExistsUnreadMessage: Bool
     public let latestChatTime: String
     public let receiverProfile: ProfileEntity
-    public let isBookmarked: Bool
+    public var isBookmarked: Bool
     public let isBlocked: Bool
     public let isEver: Bool
 

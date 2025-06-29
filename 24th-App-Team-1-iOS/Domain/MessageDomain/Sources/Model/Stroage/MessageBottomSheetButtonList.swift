@@ -9,17 +9,17 @@ import Foundation
 
 public enum MessageBottomSheetButtonList {
     case block
-    case delete
-    case report
+    case unFavorite
+    case favorite
     
     public var titleText: String {
         switch self {
         case .block:
             return "차단하기"
-        case .delete:
-            return "삭제하기"
-        case .report:
-            return "신고하기"
+        case .unFavorite:
+            return "즐겨찾기 해체하기"
+        case .favorite:
+            return "즐겨찾기"
         }
     }
 }

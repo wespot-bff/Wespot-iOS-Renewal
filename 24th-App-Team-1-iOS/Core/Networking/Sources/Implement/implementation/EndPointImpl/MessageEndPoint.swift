@@ -31,18 +31,21 @@ public enum MessageEndPoint: WSNetworkEndPoint {
     case blockMessage(Int)
     // 쪽지 신고
     case reportMessage(Encodable)
-    // 쪽지 읽기
-    case readMessage(Int)
+
     // 익명프로필 리스트 조회
     case fetchAnonymousProfileList(Int)
     
     case bookMark(Int)
+    
+    case detailMessage(Int)
+    
+    case replyMessage(Int, Encodable)
             
     
     public var spec: WSNetworkSpec {
         switch self {
         case .messagesStatus:
-            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages/status/me")
+            return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURLV2)/messages/status")
         case .fetchReservedMessages:
             return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURL)/messages/scheduled")
         case .fetchMessages:
@@ -56,25 +59,27 @@ public enum MessageEndPoint: WSNetworkEndPoint {
         case .getMessageRoomList:
             return WSNetworkSpec(method: .get, url: "\(WSNetworkConfigure.baseURLV2)/messages")
         case .deleteMessage(let messageID):
-            return WSNetworkSpec(method: .delete, url: "\(WSNetworkConfigure.baseURL)/messages/\(messageID)")
+            return WSNetworkSpec(method: .delete, url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)")
         case .blockMessage(let messageID):
-                return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/block")
+            return WSNetworkSpec(method: .patch, url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/block")
         case .reportMessage:
             return WSNetworkSpec(method: .post,
                                  url: "\(WSNetworkConfigure.baseURL)/reports")
-        case .readMessage(let messageID):
-            return WSNetworkSpec(method: .put,
-                                 url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/read")
 
         case .fetchAnonymousProfileList(let reciverId):
             return WSNetworkSpec(method: .get,
                                     url: "\(WSNetworkConfigure.baseURL)/messages/receiver/\(reciverId)/profiles")
         case .bookMark(let messageID):
-            return WSNetworkSpec(method: .put,
+            return WSNetworkSpec(method: .patch,
                                  url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/bookmark")
 
 
 
+        case .detailMessage(let id):
+            return WSNetworkSpec(method: .get,
+                                    url: "\(WSNetworkConfigure.baseURLV2)/messages/\(id)/details")
+        case .replyMessage(let messageID, let query):
+            return WSNetworkSpec(method: .post, url: "\(WSNetworkConfigure.baseURLV2)/messages/\(messageID)/answer")
         }
     }
     
@@ -100,13 +105,15 @@ public enum MessageEndPoint: WSNetworkEndPoint {
             return .none
         case .reportMessage(let body):
             return .requestBody(body)
-        case .readMessage(_):
-            return .none
         case .fetchAnonymousProfileList:
             return .none
         case .bookMark:
             return .none
 
+        case .detailMessage:
+            return .none
+        case .replyMessage(_, let body):
+            return .requestBody(body)
         }
     }
     

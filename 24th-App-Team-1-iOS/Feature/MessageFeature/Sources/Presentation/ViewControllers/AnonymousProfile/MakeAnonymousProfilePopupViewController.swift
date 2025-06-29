@@ -16,7 +16,7 @@ import RxSwift
 import RxCocoa
 
 final class MakeAnonymousProfilePopupViewController: BaseViewController<AnonymousProfileReactor> {
-    public var onProfileCreated: ((_ name: String, _ imageUrl: String) -> Void)?
+    public var onProfileCreated: ((_ name: String, _ imageUrl: String, _ isAnonymous: Bool) -> Void)?
     private let contentView = UIView().then {
         $0.backgroundColor = DesignSystemAsset.Colors.gray600.color
         $0.layer.cornerRadius = 20
@@ -171,7 +171,7 @@ final class MakeAnonymousProfilePopupViewController: BaseViewController<Anonymou
         makeProfileButton.rx.tap
             .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
             .bind(with: self) { this, _ in
-                this.onProfileCreated?(reactor.currentState.userName, reactor.currentState.profileImageURL)
+                this.onProfileCreated?(reactor.currentState.userName, reactor.currentState.profileImageURL, true)
                 this.presentingViewController?.presentingViewController?.dismiss(animated: true)
             }
             .disposed(by: disposeBag)

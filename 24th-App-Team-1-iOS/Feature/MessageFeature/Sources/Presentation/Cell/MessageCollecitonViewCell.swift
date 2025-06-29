@@ -149,7 +149,7 @@ final class MessageCollectionViewCell: UICollectionViewCell {
         favoriteImage.snp.makeConstraints {
             $0.size.equalTo(10)
             $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview().offset(8)
+            $0.trailing.equalTo(nameLabel.snp.leading).offset(-3.5)
         }
         
         moreButton.snp.makeConstraints {
@@ -174,12 +174,15 @@ final class MessageCollectionViewCell: UICollectionViewCell {
     
     func configure(myNickname: String,
                    opponentNickname: String,
+                   myImaURL: String,
+                   opponentImageURL: String,
                    date: String,
                    isFavorite: Bool,
                    isAnonymous: Bool = false,
                    isBlocked: Bool = false,
                    isRead: Bool) {
-
+        self.profileImageView.kf.setImage(with: URL(string: myImaURL))
+        self.opponentImageView.kf.setImage(with: URL(string: opponentImageURL))
         self.redDot.isHidden = !isRead
         self.myNameLabel.text = myNickname
         self.opponentNameLabel.text = opponentNickname

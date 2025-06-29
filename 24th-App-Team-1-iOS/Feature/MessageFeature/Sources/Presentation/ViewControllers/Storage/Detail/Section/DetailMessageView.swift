@@ -12,24 +12,38 @@ final class DetailMessageView: UIView {
     private let messageStatusView = UIView().then {
         $0.layer.cornerRadius = 12
     }
-    private let messageStatusLabel = WSLabel(wsFont: .Body04)
+    private let messageStatusLabel = WSLabel(wsFont: .Body08)
         
-    private let messageContentLabel = WSTextView(state: .default)
+    private let messageContentLabel = WSTextView(state: .detailMessage).then {
+        $0.backgroundColor = .clear
+        $0.layer.borderWidth = 0
+        $0.textColor = DesignSystemAsset.Colors.gray900.color
+        $0.font = WSFont.font(.Body03)()
+        $0.isScrollEnabled = true
+    }
     let replyButton = WSButton(wsButtonType: .default(12))
     let deleteButton = UIButton().then {
         $0.setImage(DesignSystemAsset.Images.icXmark.image, for: .normal)
     }
-    
-    func configureView(send: Bool, isBlocked: Bool, message: String) {
-        if send {
+    private let backGroundView = UIImageView().then {
+        $0.isUserInteractionEnabled = true
+    }
+    func configureView(isSent: Bool, message: String) {
+        if !isSent {
             replyButton.setupButton(text: "답장 보내기")
             messageStatusLabel.text = "보낸쪽지"
-            messageStatusView.backgroundColor = UIColor(hex: "#FF4D4D")
+            messageStatusView.backgroundColor = UIColor(hex: "#B5D1FF")
+            messageStatusLabel.textColor = UIColor(hex: "#3782FF")
+            backGroundView.image = DesignSystemAsset.Images.recivedMessageBackground.image
+            replyButton.isHidden = true
         } else {
+            backGroundView.image = DesignSystemAsset.Images.sentMessageBackground.image
             messageStatusLabel.text = "받은쪽지"
+            messageStatusLabel.textColor = UIColor(hex: "#FF5946")
             messageStatusView.backgroundColor = UIColor(hex: "#FFCBC6")
-            replyButton.isEnabled = false
-            replyButton.setupButton(text: "답장 완료")
+            replyButton.isHidden = false
+            replyButton.isEnabled = true
+            replyButton.setupButton(text: "답장 보내기")
         }
         messageContentLabel.text = message
         messageContentLabel.font = WSFont.font(.Body04)()
@@ -37,7 +51,8 @@ final class DetailMessageView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.addSubviews(messageStatusView, messageContentLabel, replyButton)
+        self.addSubview(backGroundView)
+        self.backGroundView.addSubviews(messageStatusView, messageContentLabel, replyButton, deleteButton)
         self.messageStatusView.addSubview(messageStatusLabel)
         self.backgroundColor = .clear
         layout()
@@ -48,13 +63,13 @@ final class DetailMessageView: UIView {
     }
     
     private func layout() {
-        self.layer.cornerRadius = 20
-        self.layer.borderWidth = 1
-        self.layer.borderColor = UIColor(hex: "#2D2D2D").cgColor
+        backGroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         messageStatusView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(44)
             $0.leading.equalToSuperview().offset(26)
-            $0.width.equalTo(56)
+            $0.width.equalTo(57)
             $0.height.equalTo(24)
         }
         
@@ -78,8 +93,8 @@ final class DetailMessageView: UIView {
         
         deleteButton.snp.makeConstraints {
             $0.size.equalTo(40)
-            $0.top.equalToSuperview()
-            $0.trailing.equalToSuperview()
+            $0.top.equalToSuperview().offset(18)
+            $0.trailing.equalToSuperview().offset(-18)
         }
     }
     
